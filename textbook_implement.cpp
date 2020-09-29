@@ -89,7 +89,7 @@ class RBtree {
     ~RBtree() {}
 
     // FIXME: Need to update colours etc.. dont forget to account for NIL nodes = black
-    void insert_price(Node *currnode) {
+    Node *insert_price(Node *currnode) {
         Node *y = NIL;
         Node *x = this->root;
 
@@ -127,83 +127,83 @@ class RBtree {
             currnode->queue.~Queue();
         }
 
-        if (currnode->parent != nullptr && currnode->parent->colour == RED) {
-            // insert_fixup(currnode);
-        }
+        return currnode;
+
     }
 
     void insert_fixup(Node *currnode) {
-        while (currnode->parent->colour == RED ) {
-            cout << "while loop iteration ++ " << endl;
-            // Category 1
+        // // cout << "Start fix";
+        // while (currnode->parent->colour == RED ) {
+        //     cout << "while loop iteration ++ " << endl;
+        //     // Category 1
             
-            if (currnode->parent == currnode->parent->parent->left) {
-                cout << "category 1 start" << endl;
-                Node *y = currnode->parent->parent->right;
-                // C1 Case 1
-                cout << "check 1st"  << endl;
+        //     if (currnode->parent == currnode->parent->parent->left) {
+        //         cout << "category 1 start" << endl;
+        //         Node *y = currnode->parent->parent->right;
+        //         // C1 Case 1
+        //         cout << "check 1st"  << endl;
                 
-                if (y->colour == RED) {
-                    cout << "category 1 case 1 start" << endl;
-                    currnode->parent->colour = BLACK;
-                    y->colour = BLACK;
-                    currnode->parent->parent->colour = RED;
-                    currnode = currnode->parent->parent;
-                }
-                // C1 Case 2
+        //         if (y->colour == RED) {
+        //             cout << "category 1 case 1 start" << endl;
+        //             currnode->parent->colour = BLACK;
+        //             y->colour = BLACK;
+        //             currnode->parent->parent->colour = RED;
+        //             currnode = currnode->parent->parent;
+        //         }
+        //         // C1 Case 2
                 
-                else if (currnode == currnode->parent->right) {
-                    cout << "category 1 case 2 start" << endl;
-                    currnode = currnode->parent;
-                    rotate_left(currnode);
-                    currnode->parent->colour = BLACK;
-                    currnode->parent->parent->colour = RED;
-                    rotate_right(currnode->parent->parent);
+        //         else if (currnode == currnode->parent->right) {
+        //             cout << "category 1 case 2 start" << endl;
+        //             currnode = currnode->parent;
+        //             rotate_left(currnode);
+        //             currnode->parent->colour = BLACK;
+        //             currnode->parent->parent->colour = RED;
+        //             rotate_right(currnode->parent->parent);
 
-                }
-                // Category 3
-                else {
-                    cout << "category 1 case 3 start" << endl;
-                    currnode->parent->colour = BLACK;
-                    currnode->parent->parent->colour = RED;
-                    rotate_right(currnode->parent->parent);
-                }
+        //         }
+        //         // Category 3
+        //         else {
+        //             cout << "category 1 case 3 start" << endl;
+        //             currnode->parent->colour = BLACK;
+        //             currnode->parent->parent->colour = RED;
+        //             rotate_right(currnode->parent->parent);
+        //         }
 
-            }
-            // Category 2
-            else {
-                cout << "category 2 start" << endl;
-                Node *y = currnode->parent->parent->left;
-                // C2 Case 1
-                if (y->colour == RED) {
-                    cout << "category 2 case 2 start" << endl;
-                    currnode->parent->colour = BLACK;
-                    y->colour = BLACK;
-                    currnode->parent->parent->colour = RED;
-                    currnode = currnode->parent->parent;
-                    if (currnode->parent == nullptr){
-                        break;
-                    }
-                    cout << "category 2 case 2 finish" << endl;
+        //     }
+        //     // Category 2
+        //     else {
+        //         cout << "category 2 start" << endl;
+        //         Node *y = currnode->parent->parent->left;
+        //         // C2 Case 1
+        //         if (y->colour == RED) {
+        //             cout << "category 2 case 2 start" << endl;
+        //             currnode->parent->colour = BLACK;
+        //             y->colour = BLACK;
+        //             currnode->parent->parent->colour = RED;
+        //             currnode = currnode->parent->parent;
+        //             if (currnode->parent == nullptr){
+        //                 break;
+        //             }
+        //             cout << "category 2 case 2 finish" << endl;
 
-                }
-                // C2 Case 2
-                else if (currnode == currnode->parent->left) {
-                    cout << "category 2 case 2 start" << endl;
-                    currnode = currnode->parent;
-                    rotate_right(currnode);
-                    currnode->parent->colour = BLACK;
-                    currnode->parent->parent->colour = RED;
-                    rotate_left(currnode->parent->parent);
-                // C3 Case 3
-                } else {
-                    cout << "category 2 case 3 start" << endl;
-                    currnode->parent->colour = BLACK;
-                    currnode->parent->parent->colour = RED;
-                    rotate_left(currnode->parent->parent);
-                }
-            }
-        }
+        //         }
+        //         // C2 Case 2
+        //         else if (currnode == currnode->parent->left) {
+        //             cout << "category 2 case 2 start" << endl;
+        //             currnode = currnode->parent;
+        //             rotate_right(currnode);
+        //             currnode->parent->colour = BLACK;
+        //             currnode->parent->parent->colour = RED;
+        //             rotate_left(currnode->parent->parent);
+        //         // C3 Case 3
+        //         } else {
+        //             cout << "category 2 case 3 start" << endl;
+        //             currnode->parent->colour = BLACK;
+        //             currnode->parent->parent->colour = RED;
+        //             rotate_left(currnode->parent->parent);
+        //         }
+        //     }
+        // }
     }
 
 
@@ -260,6 +260,24 @@ void rotate_left(Node *currnode) {
 
 
 void rotate_right(Node *currnode) {
+    Node *y = currnode->left;
+    currnode->left = y->right;
+    if (y->right != NIL){
+        y->right->parent = currnode;
+    }
+    y->parent = currnode->parent;
+    if (currnode->parent == NIL){
+        this->root = y;
+    }
+    else if (currnode == currnode->parent->right){
+        currnode->parent->right = y;
+    }
+    else{
+        currnode->parent->left = y;
+    }
+    y->right = currnode;
+    currnode->parent = y;
+
     
 }
 
@@ -269,6 +287,7 @@ void update_tree(float price, int ID, string func = "add", bool execute = false)
     if (func == "add") {
         Node *currnode = new Node(price, ID);
         insert_price(currnode);
+        insert_fixup(currnode);
     }
 
     else if (func == "del") {
@@ -289,7 +308,7 @@ void printPreorder(Node *node) {
 
     /* now recur on right subtree */
     printPreorder(node->right);
-}
+    }
 };
 
 // TODO: Testing file (e.g. test that the prices are in the queue)
@@ -297,11 +316,10 @@ void printPreorder(Node *node) {
 int main() {
     RBtree testtree = RBtree();
 
-
     testtree.update_tree(20, 103, "add"); // g
     testtree.update_tree(18, 104, "add"); // u
-    testtree.update_tree(22, 101, "add"); // p
-    testtree.update_tree(24, 105, "add"); // x
+    testtree.update_tree(24, 101, "add"); // p
+    testtree.update_tree(22, 105, "add"); // x
     // testtree.update_tree(16, 101, "add"); // y
     // testtree.update_tree(17, 101, "add"); // gamma
     // testtree.update_tree(15, 101, "add"); // beta
@@ -310,7 +328,7 @@ int main() {
     testtree.printPreorder(testtree.root);
 
     cout << endl;
-    testtree.rotate_left(testtree.root);
+    testtree.rotate_right(testtree.root->right);
     
     testtree.printPreorder(testtree.root);
 
