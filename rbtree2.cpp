@@ -126,24 +126,32 @@ class RBtree {
         }
 
         if (currnode->parent != nullptr && currnode->parent->colour == RED) {
-            // insert_fixup(currnode);
+            insert_fixup(currnode);
         }
     }
 
     void insert_fixup(Node *currnode) {
-        while (currnode->parent->colour == RED) {
+        while (currnode->parent->colour == RED ) {
+            cout << "while loop iteration ++ " << endl;
             // Category 1
+            
             if (currnode->parent == currnode->parent->parent->left) {
+                cout << "category 1 start" << endl;
                 Node *y = currnode->parent->parent->right;
                 // C1 Case 1
+                cout << "check 1st"  << endl;
+                
                 if (y->colour == RED) {
+                    cout << "category 1 case 1 start" << endl;
                     currnode->parent->colour = BLACK;
                     y->colour = BLACK;
                     currnode->parent->parent->colour = RED;
                     currnode = currnode->parent->parent;
                 }
                 // C1 Case 2
+                
                 else if (currnode == currnode->parent->right) {
+                    cout << "category 1 case 2 start" << endl;
                     currnode = currnode->parent;
                     rotate_left(currnode);
                     currnode->parent->colour = BLACK;
@@ -153,6 +161,7 @@ class RBtree {
                 }
                 // Category 3
                 else {
+                    cout << "category 1 case 3 start" << endl;
                     currnode->parent->colour = BLACK;
                     currnode->parent->parent->colour = RED;
                     rotate_right(currnode->parent->parent);
@@ -161,23 +170,32 @@ class RBtree {
             }
             // Category 2
             else {
+                cout << "category 2 start" << endl;
                 Node *y = currnode->parent->parent->left;
-                // C1 Case 1
+                // C2 Case 1
                 if (y->colour == RED) {
+                    cout << "category 2 case 2 start" << endl;
                     currnode->parent->colour = BLACK;
                     y->colour = BLACK;
                     currnode->parent->parent->colour = RED;
                     currnode = currnode->parent->parent;
+                    if (currnode->parent == nullptr){
+                        break;
+                    }
+                    cout << "category 2 case 2 finish" << endl;
+
                 }
-                // C1 Case 2
+                // C2 Case 2
                 else if (currnode == currnode->parent->left) {
+                    cout << "category 2 case 2 start" << endl;
                     currnode = currnode->parent;
                     rotate_right(currnode);
                     currnode->parent->colour = BLACK;
                     currnode->parent->parent->colour = RED;
                     rotate_left(currnode->parent->parent);
-
+                // C3 Case 3
                 } else {
+                    cout << "category 2 case 3 start" << endl;
                     currnode->parent->colour = BLACK;
                     currnode->parent->parent->colour = RED;
                     rotate_left(currnode->parent->parent);
@@ -293,14 +311,14 @@ void printPreorder(Node *node) {
 int main() {
     RBtree testtree = RBtree();
 
-    testtree.update_tree(10, 103, "add");
-    testtree.update_tree(7, 104, "add");
+    testtree.update_tree(22, 103, "add");
+    testtree.update_tree(20, 104, "add");
     testtree.update_tree(18, 101, "add");
-    testtree.update_tree(15, 101, "add");
-    testtree.update_tree(22, 101, "add");
-    testtree.update_tree(7, 101, "add");
-    testtree.update_tree(6, 101, "add");
-    testtree.update_tree(8, 101, "add");
+    testtree.update_tree(18, 101, "add");
+    testtree.update_tree(17, 101, "add");
+    // testtree.update_tree(7, 101, "add");
+    testtree.update_tree(19, 101, "add");
+    // testtree.update_tree(8, 101, "add");
     // testtree.update_tree(5, 111, "add");
     // testtree.update_tree(5, 144, "add");
     // testtree.update_tree(5, 122, "add");
