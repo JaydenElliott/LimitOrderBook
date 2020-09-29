@@ -7,6 +7,7 @@ using namespace std;
 #define BLACK true
 #define RED false
 
+
 class Queue {
    public:
     Queue() {}
@@ -79,19 +80,20 @@ class Node {
 
 class RBtree {
    public:
-    Node *root = nullptr;
     Node *max = nullptr;  // if buy tree
     Node *min = nullptr;  // if sell tree
+    Node *NIL = nullptr;
+    Node *root = NIL;
 
     RBtree() {}
     ~RBtree() {}
 
     // FIXME: Need to update colours etc.. dont forget to account for NIL nodes = black
     void insert_price(Node *currnode) {
-        Node *y = nullptr;
+        Node *y = NIL;
         Node *x = this->root;
 
-        while (x != nullptr) {
+        while (x != NIL) {
             y = x;
             if (currnode->price < x->price) {
                 x = x->left;
@@ -104,20 +106,20 @@ class RBtree {
         }
 
         // currnode->parent = y;
-        if (y == nullptr) {
+        if (y == NIL) {
             currnode->parent = y;
             root = currnode;
         } else if (currnode->price < y->price) {
             currnode->parent = y;
             y->left = currnode;
-            currnode->left = nullptr;
-            currnode->right = nullptr;
+            currnode->left = NIL;
+            currnode->right = NIL;
             currnode->colour = RED;
         } else if (currnode->price > y->price) {
             currnode->parent = y;
             y->right = currnode;
-            currnode->left = nullptr;
-            currnode->right = nullptr;
+            currnode->left = NIL;
+            currnode->right = NIL;
             currnode->colour = RED;
         } else {
             // y price = currnode price
@@ -126,7 +128,7 @@ class RBtree {
         }
 
         if (currnode->parent != nullptr && currnode->parent->colour == RED) {
-            insert_fixup(currnode);
+            // insert_fixup(currnode);
         }
     }
 
@@ -230,51 +232,35 @@ Node *delete_price(float price, int ID, Node *currnode, Node *parent = nullptr, 
     return currnode;
 }
 
-// TODO: change to look not as similar as programiz
+
 void rotate_left(Node *currnode) {
-    Node *rightchild = currnode->right;
-
-    currnode->right = rightchild->left;
-
-    if (rightchild->left != nullptr) {
-        rightchild->left->parent = currnode;
+    Node *y = currnode->right;
+    currnode->right = y->left;
+    if (y->left != NIL){
+        y->left->parent = currnode;
     }
-
-    rightchild->parent = currnode->parent;
-    if (currnode->parent == nullptr) {
-        this->root = rightchild;
-
-    } else if (currnode == currnode->parent->left) {
-        currnode->parent->left = rightchild;
-
-    } else {
-        currnode->parent->right = rightchild;
+    y->parent = currnode->parent;
+    if (currnode->parent == NIL){
+        this->root = y;
     }
-    rightchild->left = currnode;
-    currnode->parent = rightchild;
+    else if (currnode == currnode->parent->left){
+        currnode->parent->left = y;
+    }
+    else{
+        currnode->parent->right = y;
+    }
+    y->left = currnode;
+    currnode->parent = y;
+
 }
 
+
+    
+
+
+
 void rotate_right(Node *currnode) {
-    Node *leftchild = currnode->left;
-
-    currnode->left = leftchild->right;
-
-    if (leftchild->right != nullptr) {
-        leftchild->right->parent = currnode;
-    }
-
-    leftchild->parent = currnode->parent;
-    if (currnode->parent == nullptr) {
-        root = leftchild;
-
-    } else if (currnode == currnode->parent->right) {
-        currnode->parent->right = leftchild;
-
-    } else {
-        currnode->parent->left = leftchild;
-    }
-    leftchild->right = currnode;
-    currnode->parent = leftchild;
+    
 }
 
 void invariance_check() {}
@@ -311,28 +297,22 @@ void printPreorder(Node *node) {
 int main() {
     RBtree testtree = RBtree();
 
-    testtree.update_tree(20, 103, "add");
-    testtree.update_tree(22, 104, "add");
-    testtree.update_tree(30, 101, "add");
-    testtree.update_tree(25, 101, "add");
-    testtree.update_tree(19, 101, "add");
+
+    testtree.update_tree(20, 103, "add"); // g
+    testtree.update_tree(18, 104, "add"); // u
+    testtree.update_tree(22, 101, "add"); // p
+    testtree.update_tree(24, 105, "add"); // x
+    // testtree.update_tree(16, 101, "add"); // y
+    // testtree.update_tree(17, 101, "add"); // gamma
+    // testtree.update_tree(15, 101, "add"); // beta
+
 
     testtree.printPreorder(testtree.root);
+
     cout << endl;
     testtree.rotate_left(testtree.root);
+    
     testtree.printPreorder(testtree.root);
-
-    // testtree.root->queue.print();
-    // testtree.rotate_left(testtree.root);
-    // testtree.rotate_right(testtree.root);
-    // testtree.update_tree(2,101,"del",false);
-    // testtree.delete_price(2, 101, testtree.root, nullptr, false);
-
-    // delete testtree.root->right;
-    // testtree.root->right = nullptr;
-    // cout << endl;
-    // testtree.printPreorder(testtree.root);
-    // cout << endl;
 
     return 0;
 }
