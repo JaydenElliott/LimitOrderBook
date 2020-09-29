@@ -92,23 +92,19 @@ class RBtree {
             if (root == nullptr) {
                 root = order;
                 order->colour = BLACK;
+                root->parent = nullptr;
+                max = order;
             }
             else
             {
+                if (price > max->price) {
+                    max = order;  // update max
+                }
                 order->colour = RED;
-                // cout << "checking parent" << endl;
-                // cout << order->parent->colour;
-                // cout << "checking colour" << endl;
-                // if (order->parent->colour == RED){
-                //     // insert_fixup(order);
-                //     cout << "checked colour" << endl;
-                // }
             }
             
 
-            if (max == nullptr || price > max->price) {
-                max = order;  // update max
-            }
+
 
             // Setting up NIL child nodes
             // rchild->colour = BLACK;
@@ -117,14 +113,11 @@ class RBtree {
             // lchild->parent = order;
             // order->right = rchild;
             // order->left = lchild;
-
-   
-
-
+            cout << "ORDER PRICE " << order->price << endl;
             return order;
         }
 
-        if (currnode->price < price) {
+        else if (currnode->price < price) {
             // cout << "new price > old" << endl;
             currnode->right = insert_price(price, ID, currnode->right, parent = currnode);
             currnode->right->parent = currnode;
@@ -144,6 +137,11 @@ class RBtree {
 
 
     Node  *insert_fixup(Node *currnode){
+
+        if (currnode->parent->colour == BLACK){
+            return currnode; // no fix needed
+        }
+        else{
 
         // Category 1:
         cout << "Checking cat 1 condition" << endl;
@@ -185,6 +183,7 @@ class RBtree {
 
 
         return currnode;
+    }
     }
 
 
@@ -267,13 +266,25 @@ class RBtree {
 
     void update_tree(float price, int ID, string func = "add", bool execute = false) {
         if (func == "add") {
-            insert_price(price, ID, root);
+        Node  *a = insert_price(price, ID, root);
+        if (a->parent != nullptr){
+            cout << a->parent->colour;
+        }
+        else{
+            cout << "parent = nullptr" << endl;
+        }
+
         }
 
         else if (func == "del") {
             delete_price(price, ID, root, nullptr, execute);
         }
     }
+
+
+
+
+
 
     void printInorder(Node *node) {
         if (node == nullptr)
@@ -307,19 +318,27 @@ class RBtree {
 int main() {
     RBtree testtree = RBtree();
 
-    cout<< "insert 1st elem"<<endl;
+    
     testtree.update_tree(5, 103, "add");
-    cout<< "insert 2st elem"<<endl;
+    cout << "NEXT" << endl;
     testtree.update_tree(7, 104, "add");
+    cout << "NEXT" << endl;
     testtree.update_tree(2, 101, "add");
+    cout << "NEXT" << endl;
     testtree.update_tree(6, 101, "add");
+    cout << "NEXT" << endl;
     testtree.update_tree(8, 101, "add");
+    cout << "NEXT" << endl;
     testtree.update_tree(5, 111, "add");
+    cout << "NEXT" << endl;
     testtree.update_tree(5, 144, "add");
+    cout << "NEXT" << endl;
     testtree.update_tree(5, 122, "add");
 
+    // cout << testtree.root->right->right->parent->colour;
+
     // check non-execute;
-    // testtree.printPreorder(testtree.root);
+    testtree.printPreorder(testtree.root);
     cout << endl;
     // testtree.rotate_left(testtree.root);
     // testtree.rotate_right(testtree.root);
