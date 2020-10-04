@@ -1,6 +1,7 @@
 
 #include "rbtree.h"
 
+#include <iostream>
 #include <string>
 using namespace std;
 
@@ -91,6 +92,7 @@ class RBtree {
     ~RBtree() {}
 
     void insert_price(Node *currnode) {
+        cout << "inserting price " << currnode->price << endl;
         Node *y = new Node();
         Node *x = new Node();
         y = NIL;
@@ -129,6 +131,7 @@ class RBtree {
             // y price = currnode price
             y->queue.push(currnode->ID);
             currnode->queue.~Queue();
+            cout << "pushing to queue" << endl;
         }
 
         if (currnode != root) {
@@ -137,24 +140,30 @@ class RBtree {
     }
 
     void insert_fixup(Node *currnode) {
-        // cout << "Start fix";
+        cout << "Start fix at price" << currnode->price << endl;
 
         Node *pNode;
         Node *gpNode;
+
         while (currnode != root && currnode->parent->colour == RED) {
             pNode = currnode->parent;
             gpNode = currnode->parent->parent;
+
+            cout << endl;
+            cout << "testing begin" << endl;
+            cout << "currnode = " << currnode->price << endl;
+            cout << "currnode parent = " << currnode->parent->price << endl;
+            cout << "testing end" << endl;
+            cout << endl;
+            // TODO figured out that the problem is occuring when node = 16.
+
             // Category 1
             if (pNode == gpNode->left) {
-                cout << "category 1 start" << endl;
                 Node *y = new Node();
-                y = gpNode->right;  // BUG seg fault
-                cout << y->price;
+                y = gpNode->right;
                 // C1 Case 1
-                cout << "check 1st" << endl;
 
                 if (y->colour == RED and y != NULL) {
-                    cout << "category 1 case 1 start" << endl;
                     pNode->colour = BLACK;
                     y->colour = BLACK;
                     gpNode->colour = RED;
@@ -163,53 +172,56 @@ class RBtree {
                 // C1 Case 2
 
                 else if (currnode == pNode->right) {
-                    cout << "category 1 case 2 start" << endl;
-                    currnode = pNode;       //
+                    currnode = pNode;
                     rotate_left(currnode);  // TODO maybe swap these
                     pNode->colour = BLACK;
                     gpNode->colour = RED;
                     rotate_right(gpNode);
                     // TODO: see line 275 on their
-
                 }
-                // Category 3
+
                 else {
-                    cout << "category 1 case 3 start" << endl;
+                    // Category 3
+                    cout << "cat 3 " << endl;
                     pNode->colour = BLACK;
                     gpNode->colour = RED;
                     rotate_right(gpNode);
                 }
-
             }
             // Category 2
+
             else {
                 Node *y = new Node();
-                cout << "category 2 start" << endl;
-                y = gpNode->left;
+                y = gpNode->left;  // BUG: error is here
+                cout << "error begins here" << endl;
+
+                cout << y->price;
+
+                cout << endl;
+                cout << "error ends here" << endl;
+
                 // C2 Case 1
                 if (y->price != 0 && y->colour == RED) {
-                    cout << "category 2 case 2 start" << endl;
+                    cout << "cat 2 case 1" << endl;
                     pNode->colour = BLACK;
                     y->colour = BLACK;
                     gpNode->colour = RED;
                     currnode = gpNode;
-                    if (pNode == nullptr) {
+                    if (pNode == NIL) {
                         break;
                     }
-                    cout << "category 2 case 2 finish" << endl;
-
                 }
                 // C2 Case 2
+
                 else if (currnode == pNode->left) {
-                    cout << "category 2 case 2 start" << endl;
                     currnode = pNode;
                     rotate_right(currnode);
                     pNode->colour = BLACK;
                     gpNode->colour = RED;
                     rotate_left(gpNode);
                     // C3 Case 3
+
                 } else {
-                    cout << "category 2 case 3 start" << endl;
                     pNode->colour = BLACK;
                     gpNode->colour = RED;
                     rotate_left(gpNode);
@@ -218,90 +230,128 @@ class RBtree {
         }
 
         root->colour = BLACK;
+        cout << "finished fixing price " << currnode->price << endl;
     }
-
-    void insert_fixup2(Node *currnode) {
-        // cout << "Start fix";
-        Node *y = new Node();
-        Node *pNode = new Node();
-        Node *gpNode = new Node();
-        while (currnode->parent->colour == RED) {
-            cout << "while loop iteration ++ " << endl;
-            // Category 1
-
-            if (currnode->parent == currnode->parent->parent->left) {
-                cout << "category 1 start" << endl;
-                y = currnode->parent->parent->right;  // BUG seg fault
-                cout << y->price;
-                // C1 Case 1
-                cout << "check 1st" << endl;
-
-                if (y->colour == RED) {
-                    cout << "category 1 case 1 start" << endl;
-                    currnode->parent->colour = BLACK;
-                    y->colour = BLACK;
-                    currnode->parent->parent->colour = RED;
-                    currnode = currnode->parent->parent;
-                }
-                // C1 Case 2
-
-                else if (currnode == currnode->parent->right) {
-                    cout << "category 1 case 2 start" << endl;
-                    currnode = currnode->parent;
-                    rotate_left(currnode);
-                    currnode->parent->colour = BLACK;
-                    currnode->parent->parent->colour = RED;
-                    rotate_right(currnode->parent->parent);
-
-                }
-                // Category 3
-                else {
-                    cout << "category 1 case 3 start" << endl;
-                    currnode->parent->colour = BLACK;
-                    currnode->parent->parent->colour = RED;
-                    rotate_right(currnode->parent->parent);
-                }
-
+    // TODO: multiple id's
+    Node *search_tree(float tofind, int ID) {
+        Node *n = new Node();
+        n = root;
+        while (n == NIL || n->price != tofind) {
+            if (n == NIL) {
+                throw runtime_error("price does not exist in tree");
             }
-            // Category 2
-            else {
-                cout << "category 2 start" << endl;
-                y = currnode->parent->parent->left;
-                // C2 Case 1
-                if (y->colour == RED) {
-                    cout << "category 2 case 2 start" << endl;
-                    currnode->parent->colour = BLACK;
-                    y->colour = BLACK;
-                    currnode->parent->parent->colour = RED;
-                    currnode = currnode->parent->parent;
-                    if (currnode->parent == nullptr) {
-                        break;
-                    }
-                    cout << "category 2 case 2 finish" << endl;
-
-                }
-                // C2 Case 2
-                else if (currnode == currnode->parent->left) {
-                    cout << "category 2 case 2 start" << endl;
-                    currnode = currnode->parent;
-                    rotate_right(currnode);
-                    currnode->parent->colour = BLACK;
-                    currnode->parent->parent->colour = RED;
-                    rotate_left(currnode->parent->parent);
-                    // C3 Case 3
-                } else {
-                    cout << "category 2 case 3 start" << endl;
-                    currnode->parent->colour = BLACK;
-                    currnode->parent->parent->colour = RED;
-                    rotate_left(currnode->parent->parent);
-                }
+            if (n->price < tofind) {
+                n = n->right;
+            } else {
+                n = n->left;
             }
         }
+        return n;
     }
 
     // TODO: update hash table and deletion cases
-    Node *delete_price(float price, int ID, Node *currnode, Node *parent = nullptr, bool execute = false) {
-        return currnode;
+    void delete_price(Node *todelete) {
+        Node *y = NIL;
+        Node *x = NIL;
+        bool ycolour;
+        y = todelete;
+        ycolour = y->colour;
+        if (todelete->left == NIL) {
+            x = todelete->right;
+            rbTransplant(todelete, todelete->right);
+        } else if (todelete->right == NIL) {
+            x = todelete->left;
+            rbTransplant(todelete, todelete->left);
+        } else {
+            y = findMin(todelete->right);
+
+            ycolour = y->colour;
+            x = y->right;
+            if (y->parent == todelete) {
+                x->parent = y;
+            } else {
+                rbTransplant(y, y->right);
+                y->right = todelete->right;
+                y->right->parent = y;
+            }
+            rbTransplant(todelete, y);
+            y->left = todelete->left;
+            y->left->parent = y;
+            y->colour = todelete->colour;
+        }
+
+        if (ycolour == BLACK) {
+            delete_fixup(x);
+        }
+        delete todelete;
+        todelete = nullptr;
+    }
+
+    void delete_fixup(Node *n) {
+        Node *w = new Node();
+        while (n != root && n->colour == BLACK) {
+            if (n == n->parent->left) {
+                w = n->parent->right;
+                if (w->colour == RED) {
+                    w->colour = BLACK;
+                    n->parent->colour = RED;
+                    rotate_left(n->parent);
+                    w = n->parent->right;
+                }
+                if (w->left->colour == BLACK && w->right->colour == BLACK) {
+                    w->colour = RED;
+                    n = n->parent;
+                } else {
+                    if (w->right->colour == BLACK) {
+                        w->left->colour = BLACK;
+                        w->colour = RED;
+                        rotate_right(w);
+                        w = n->parent->right;
+                    }
+                    w->colour = n->parent->colour;
+                    n->parent->colour = BLACK;
+                    w->right->colour = BLACK;
+                    rotate_left(n->parent);
+                    n = root;
+                }
+            } else {
+                w = n->parent->left;
+                if (w->colour == RED) {
+                    w->colour = BLACK;
+                    n->parent->colour = RED;
+                    rotate_right(n->parent);
+                    w = n->parent->left;
+                }
+                if (w->right->colour == BLACK && w->left->colour == BLACK) {
+                    w->colour = RED;
+                    n = n->parent;
+                } else {
+                    if (w->left->colour == BLACK) {
+                        w->right->colour = BLACK;
+                        w->colour = RED;
+                        rotate_left(w);
+                        w = n->parent->left;
+                    }
+                    w->colour = n->parent->colour;
+                    n->parent->colour = BLACK;
+                    w->left->colour = BLACK;
+                    rotate_right(n->parent);
+                    n = root;
+                }
+            }
+        }
+        n->colour = BLACK;
+    }
+
+    void rbTransplant(Node *n, Node *v) {
+        if (n->parent == NIL) {
+            this->root = v;
+        } else if (n == n->parent->left) {
+            n->parent->left = v;
+        } else {
+            n->parent->right = v;
+        }
+        v->parent = n->parent;
     }
 
     void rotate_left(Node *currnode) {
@@ -340,21 +390,27 @@ class RBtree {
         currnode->parent = y;
     }
 
-    void invariance_check() {}
-
     void update_tree(float price, int ID, string func = "add", bool execute = false) {
         if (func == "add") {
             Node *currnode = new Node(price, ID);
             insert_price(currnode);
-            if (currnode != root) {
-                // cout << "currnode = " << currnode->price << " & parent =" << currnode->parent->price << endl;
+            cout << "finished inserting" << endl;
+        } else if (func == "del") {
+            Node *x = new Node();
+            x = search_tree(price, ID);
+            if (x->queue.size() > 1) {
+                x->queue.find_and_remove(ID);
+            } else {
+                delete_price(x);
             }
-
         }
+    }
 
-        else if (func == "del") {
-            delete_price(price, ID, root, nullptr, execute);
+    Node *findMin(Node *n) {
+        while (n->left != NIL) {
+            n = n->left;
         }
+        return n;
     }
 
     // good one
@@ -363,7 +419,8 @@ class RBtree {
             return;
 
         /* first print data of node */
-        cout << node->price << " ";
+        cout << "price = " << node->price << " colour = " << (node->colour == RED ? "RED" : "BLACK") << endl;
+        // cout << node->price << " ";
 
         /* then recur on left sutree */
         printPreorder(node->left);
@@ -373,23 +430,36 @@ class RBtree {
     }
 };
 
+void parseInput(RBtree *tree, const string &input_value) {
+    if (input_value == "buy") {
+        string stock;
+        cout << "Enter stock" << endl;
+        cin >> stock;
+        string price;
+        cout << "Enter price" << endl;
+        cin >> price;
+        cout << stock << " " << price << endl;
+    }
+}
+
 // TODO: Testing file (e.g. test that the prices are in the queue)
 
 int main() {
     RBtree testtree = RBtree();
-    // if (testtree.NIL->right == nullptr) {
-    //     cout << "hi" << endl;
+
+    // while (true) {
+    //     std::string details;
+    //     cout << "enter details" << endl;
+    //     cin >> details;
+    //     if (details == "quit") {
+    //         break;
+    //     }
+    //     parseInput(&testtree, details);
     // }
-
-    // testtree.update_tree(7, 103, "add");
-    // testtree.update_tree(3, 104, "add");
-
-    // cout << testtree.root->left->left->price << endl;
-    // cout << NULL;
-
     testtree.update_tree(7, 103, "add");
     testtree.update_tree(3, 104, "add");
     testtree.update_tree(18, 101, "add");
+    testtree.update_tree(16, 102, "add");
     testtree.update_tree(10, 105, "add");
     testtree.update_tree(8, 105, "add");
     testtree.update_tree(11, 105, "add");
@@ -397,13 +467,22 @@ int main() {
     testtree.update_tree(26, 105, "add");
     testtree.update_tree(15, 105, "add");
 
+    // testtree.printPreorder(testtree.root);
+
+    // testtree.insert_price(7);
+    // testtree.insert_price(3);
+    // testtree.insert_price(18);
+    // testtree.insert_price(16);
+    // testtree.insert_price(10);
+    // testtree.insert_price(7);
+
+    cout << endl;
+
+    // testtree.update_tree(15, 105, "del");
+
     testtree.printPreorder(testtree.root);
 
-    // cout << endl;//
-    // testtree.rotate_right(testtree.root->right);
-    // cout << testtree.root->left->left->price; // BUG the seg fault is coming from the leaf nodes not being defined
-
-    // testtree.printPreorder(testtree.root);
+    // cout << testtree.root->right->left->right->right->parent->parent->left->price << endl;
 
     return 0;
 }
