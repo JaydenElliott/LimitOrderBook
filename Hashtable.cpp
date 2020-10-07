@@ -4,8 +4,9 @@
 #include "rbtree.h"
 using namespace std;
 
-const uint32_t knuth = 2654435769;
-const int tblpower = 10;
+const float golden_ratio = 0.61803398875;
+const uint32_t knuth = 2654435769;  // 0.6180339887*(2^32)
+const int tblpower = 27;
 const int tablesize = pow(2, tblpower);
 
 vector<int> vector1(tablesize, 0);
@@ -17,7 +18,14 @@ uint32_t hashmult(uint32_t k) {
 
 int main() {
     int max = 0;
-    for (int i = 1000000; i < 90000000; i++) {
+    int n1 = 1000000;
+    int n2 = 10000000;
+    float test = 111111 >> 0;
+    for (int i = n1; i < n2; i++) {
+        if (i > tablesize) {
+            cout << i << endl;
+            throw runtime_error("BAD");
+        }
         vector1.at(hashmult(i)) += 1;
     }
 
@@ -27,8 +35,15 @@ int main() {
         }
     }
 
-    float percentage_collision = max / (90000000 - 1000000);
-    cout << max << endl;
-    cout << percentage_collision;
+    float percentage_collision = max / (n2 - n1);
+
+    cout << "for " << n2 - n1 << " hashes, with a hash table size of 2^" << tblpower << " or " << tablesize << endl;
+    cout << "load factor is " << float(((n2 - n1) / tablesize)) << endl;
+    cout << "the max collisions is " << max << endl;
+    cout << "the percentage collision rate is " << percentage_collision << endl;
+    cout << "memory usage in mbbytes " << sizeof(uint32_t) * vector1.capacity() / 1000000 << endl;
+    cout << endl;
+    cout << test;
+
     return 0;
 }

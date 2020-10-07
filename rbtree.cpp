@@ -2,9 +2,12 @@
 #include "rbtree.h"
 
 #include <algorithm>
+#include <chrono>
 #include <iostream>
 #include <random>
 #include <string>
+
+using namespace std::chrono;
 using namespace std;
 
 #define BLACK true
@@ -40,14 +43,12 @@ class Queue {
             i++;
         }
     }
-
     void print() {
         for (int i : ID_Queue) {
             cout << i << ", ";
         }
         cout << endl;
     }
-
     size_t size() {
         return ID_Queue.size();
     }
@@ -89,9 +90,11 @@ class RBtree {
     Node *sellMin = nullptr;  // if sell tree
     Node *NIL = new Node();
     Node *root = NIL;
-    vector<float> orderlog;
-    RBtree() {}
+    RBtree(string treetype) {
+        this->treetype = treetype;
+    }
     ~RBtree() {}
+    string treetype;
 
     void insert_price(Node *currnode) {
         Node *y = new Node();
@@ -115,6 +118,8 @@ class RBtree {
             root = currnode;
             currnode->left = NIL;
             currnode->right = NIL;
+            this->buyMax = currnode;
+            this->sellMin = currnode;
             // currnode->colour = RED;  // TODO : changed
         } else if (currnode->price < y->price) {
             currnode->parent = y;
@@ -122,12 +127,18 @@ class RBtree {
             currnode->left = NIL;
             currnode->right = NIL;
             currnode->colour = RED;
+            if (this->treetype == "sell" && currnode->price < this->sellMin->price) {
+                this->sellMin = currnode;
+            }
         } else if (currnode->price > y->price) {
             currnode->parent = y;
             y->right = currnode;
             currnode->left = NIL;
             currnode->right = NIL;
             currnode->colour = RED;
+            if (currnode->price > this->buyMax->price && this->treetype == "buy") {
+                this->buyMax = currnode;
+            }
         } else {
             // y->price = currnode->price;
             y->queue.push(currnode->ID);
@@ -215,7 +226,6 @@ class RBtree {
         return n;
     }
 
-    // TODO: update hash table and deletion cases
     void delete_price(Node *todelete) {
         Node *y = NIL;
         Node *x = NIL;
@@ -384,60 +394,17 @@ class RBtree {
     * Helper function for printing tree
     * @param node: node to begin printing from
     */
-    void preorderPrint(Node *node) {
+    void preorderPrint(Node *node, bool withColour = false) {
         if (node == nullptr)
             return;
-        cout << "price = " << node->price << " colour = " << (node->colour == RED ? "RED" : "BLACK") << endl;
+        if (withColour == true) {
+            cout << "price = " << node->price << " colour = " << (node->colour == RED ? "RED" : "BLACK") << endl;
+        } else {
+            cout << "price = " << node->price << endl;
+        }
+
         preorderPrint(node->left);
         preorderPrint(node->right);
-    }
-
-    void executeorder(Node *buyorder, Node *sellorder) {
-        if (buyorder == nullptr) {
-            order_execution_log(sellorder->price);
-            delete_price(sellorder);
-        }
-
-        else if (sellorder == nullptr) {
-            order_execution_log(buyorder->price);
-            delete_price(buyorder);
-
-        } else {
-            order_execution_log(buyorder->price);
-            delete_price(buyorder);
-            delete_price(sellorder);
-        }
-    }
-
-    void order_execution_log(float price) {
-        this->orderlog.push_back(price);
-    }
-
-    /*
-    * Utility function to begin order process.
-    * @param ordertype: buy, sell
-    * @param price: order price
-    * @param ID: order ID
-    */
-    void neworder(string ordertype, float price, int ID) {
-        if (ordertype == "buy") {
-            if (price > this->sellMin->price) {
-                // Order can be executed immediately, no need to insert
-                executeorder(nullptr, this->sellMin);
-            } else {
-                Node *buynode = new Node(price, ID);
-                insert_price(buynode);
-            }
-        } else {
-            // Sell order
-            if (price < this->buyMax->price) {
-                // Order can be executed immediately, no need to insert
-                executeorder(this->buyMax, nullptr);
-            } else {
-                Node *sellnode = new Node(price, ID);
-                insert_price(sellnode);
-            }
-        }
     }
 };
 
@@ -453,40 +420,102 @@ void parseInput(RBtree *tree, const string &input_value) {
     }
 }
 
+vector<float> orderlog;  // check the below function actually modifies the state
+void order_execution_log(float price) {
+    orderlog.push_back(price);
+}
+
 random_device rd;
 mt19937 gen(rd());
-
+/*
+* Random number generator
+* Above defined variables are global to prevent multiple calls
+*/
 float getRandInRange(float min_value, float max_value_inc) {
     uniform_real_distribution<float> distr(min_value, max_value_inc);
     return distr(gen);
 }
-// TODO: Testing file (e.g. test that the prices are in the queue)
-
-int main() {
-    RBtree sellTree = RBtree();
-    RBtree buyTree = RBtree();
-
-    // for (int i = 0; i < 1000000; i++) {
-    //     testtree.update_tree(getRandInRange(1, 20), i, "add");
-    //     testtree.update_tree(i, i, "add");
-    // }
-
-    // while (true) {
-    //     std::string details;
-    //     cout << "enter details" << endl;
-    //     cin >> details;
-    //     if (details == "quit") {
-    //         break;
-    //     }
-    //     parseInput(&testtree, details);
-    // }
-
-    cout << endl;
-
-    return 0;
+void executeorder(Node *buyorder, Node *sellorder, RBtree &buytree, RBtree &selltree) {
+    if (buyorder == nullptr) {
+        order_execution_log(sellorder->price);
+        selltree.delete_price(sellorder);
+    } else if (sellorder == nullptr) {
+        order_execution_log(buyorder->price);
+        buytree.delete_price(buyorder);
+    } else {
+        order_execution_log(buyorder->price);
+        buytree.delete_price(buyorder);
+        selltree.delete_price(sellorder);
+    }
 }
 
+//TODO NEED TO FIX THIS SO THAT I CAN CALL IT OUTSIDE OF THE CLASS
+/*
+    * Utility function to handle orders
+    * @param ordertype: buy, sell
+    * @param price: order price
+    * @param ID: order ID
+    */
+void newOrder(string ordertype, float price, int ID, RBtree &buytree, RBtree &selltree) {
+    // cout << "begin order for type " << ordertype << " and price " << price << endl;
+    if (ordertype == "buy") {
+        if (selltree.root != selltree.NIL && price >= selltree.sellMin->price) {
+            // Order can be executed immediately, no need to insert
+            executeorder(nullptr, selltree.sellMin, buytree, selltree);
+        } else {
+            Node *buynode = new Node(price, ID);
+            buytree.insert_price(buynode);
+            //TODO update hash (similarly for other functions)
+        }
+    } else if (ordertype == "sell") {
+        // cout << buytree.buyMax->price << endl;
+        if (buytree.root != buytree.NIL && price <= buytree.buyMax->price) {
+            // Order can be executed immediately, no need to insert
+            executeorder(buytree.buyMax, nullptr, buytree, selltree);
+        } else {
+            Node *sellnode = new Node(price, ID);
+            selltree.insert_price(sellnode);
+        }
+    } else if (ordertype == "delete") {
+        ;  // search has function instead
+    } else {
+        throw runtime_error("Invalid input. Valid input: buy, sell, delete");
+    }
+}
+// ------------------------------------------------------------------------------------ //
+// int main() {
+//     RBtree sellTree = RBtree("sell");
+//     RBtree buyTree = RBtree("buy");
+
+//     vector<float> orderlog;
+
+//     // newOrder("buy", 13, 1115, buyTree, sellTree);
+//     // newOrder("buy", 15, 1115, buyTree, sellTree);
+
+//     clock_t c_start = clock();
+//     for (int i = 1; i <= 1000000; i++) {
+//         newOrder("buy", i, 11, buyTree, sellTree);
+//     }
+//     clock_t c_end = clock();
+//     cout << "Seconds = " << (c_end - c_start) / CLOCKS_PER_SEC << endl;
+
+//     // while (true) {
+//     //     std::string details;
+//     //     cout << "enter details" << endl;
+//     //     cin >> details;
+//     //     if (details == "quit") {
+//     //         break;
+//     //     }
+//     //     parseInput(&testtree, details);
+//     // }
+
+//     return 0;
+// }
+
+// ------------------------------------------------------------------------------------ //
+
 // TODO add delete functionality from order
+// TODO add compare function
 // Add functionality for buy and sell
 // If buy or sell is greater than min or max sell buy then dont need to do anything , just execute
 // Change int ID to uint32_t
