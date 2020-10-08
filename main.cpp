@@ -1,7 +1,7 @@
-#include "Hashtable.hpp"
-#include "Node.hpp"
-#include "Queue.hpp"
-#include "Rbtree.hpp"
+#include "datastructures/Hashtable.hpp"
+#include "datastructures/Node.hpp"
+#include "datastructures/Queue.hpp"
+#include "datastructures/Rbtree.hpp"
 
 using namespace std;
 
