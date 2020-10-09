@@ -9,7 +9,7 @@ using namespace std;
 class Node {
    public:
     // Node() {} // TODO I commented this out, not sure if its needed as defaults
-    Node(float price = 0, int ID = 0) {
+    Node(float price = 0, size_t ID = 0) {
         this->colour = BLACK;
         this->price = price;
         this->ID = ID;
@@ -23,7 +23,7 @@ class Node {
     ~Node(){};
     bool colour;
     Queue queue;
-    int ID;
+    size_t ID;
     double price;
     Node *parent = nullptr;
     Node *left = nullptr;

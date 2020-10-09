@@ -3,26 +3,57 @@
 
 using namespace std;
 
-const uint32_t knuth = 2654435769;  // (1/golden ratio)*(2^32)
-const int tblpower = 27;
-const int tablesize = pow(2, tblpower);
+const size_t knuth = 2654435769;  // (1/golden ratio)*(2^32)
 
-vector<int> hashTable(tablesize, 0);
+class HashNode {
+   public:
+    HashNode(float price, size_t ID) {
+        this->price = price;
+        this->ID = ID;
+    }
+    ~HashNode(){};
 
-//knuth number
-uint32_t hashmult(uint32_t k) {
-    return (k * knuth) >> (32 - tblpower);
-}
+    float price;
+    size_t ID;
+    HashNode *nextNode = nullptr;
+};
 
-//     float percentage_collision = max / (n2 - n1);
+class HashTable {
+   public:
+    HashTable(int sizeExponent) {
+        this->sizeExponent = sizeExponent;
+        this->hashVector = new vector<HashNode>(tableSize);
+    }
+    ~HashTable(){};
 
-//     cout << "for " << n2 - n1 << " hashes, with a hash table size of 2^" << tblpower << " or " << tablesize << endl;
-//     cout << "load factor is " << float(((n2 - n1) / tablesize)) << endl;
-//     cout << "the max collisions is " << max << endl;
-//     cout << "the percentage collision rate is " << percentage_collision << endl;
-//     cout << "memory usage in mbbytes " << sizeof(uint32_t) * vector1.capacity() / 1000000 << endl;
-//     cout << endl;
-//     cout << test;
+    size_t generateHash(size_t ID) {
+        return (ID * knuth) >> (32 - this->sizeExponent);
+    }
 
-//     return 0;
-// }
+    void appendHash(size_t hashIndex, int price, size_t ID) {
+        HashNode *newEntry = new HashNode(price, ID);
+        u_int32_t newIndex = generateHash(ID);
+
+        if (hashVector.at(newIndex) == 0) {
+            hashVector.at(newIndex) = newEntry;
+        } else {
+            HashNode *currNode = hashVector.at(newIndex);
+            while (currNode->nextNode != nullptr) {
+                currNode = currNode->nextNode;
+            }
+            currNode->nextNode = newEntry;
+        }
+    }
+
+    void deleteHash(size_t hashIndex) {
+        ;
+    }
+
+    int sizeExponent;
+    int tableSize = pow(2, sizeExponent);
+    vector<HashNode *> hashVector;
+
+   private:
+};
+
+// size_t

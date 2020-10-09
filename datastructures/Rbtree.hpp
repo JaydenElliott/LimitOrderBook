@@ -129,7 +129,7 @@ class RBtree {
         root->colour = BLACK;
     }
     // TODO: multiple id's
-    Node *search_tree(float tofind, int ID) {
+    Node *search_tree(float tofind, size_t ID) {
         Node *n = new Node();
         n = root;
         while (n == NIL || n->price != tofind) {

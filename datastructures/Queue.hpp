@@ -17,13 +17,13 @@ class Queue {
         return last;
     }
 
-    void push(int ID) {
+    void push(size_t ID) {
         ID_Queue.insert(ID_Queue.begin(), ID);
         // cout << "appending " << ID << endl;
     }
 
     /// Very rare // FIXME - if cant find then terminate:
-    void find_and_remove(int ID) {
+    void find_and_remove(size_t ID) {
         int i = 0;
         while (1) {
             if (ID_Queue.at(i) == ID) {
