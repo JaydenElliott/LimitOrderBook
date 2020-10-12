@@ -12,7 +12,9 @@ class RBtree {
     RBtree(string treetype) {
         this->treetype = treetype;
     }
-    ~RBtree() {}
+    ~RBtree() {
+        //TODO delete everything from bottom up
+    }
     string treetype;
 
     void insert_price(Node *currnode) {

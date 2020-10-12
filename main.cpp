@@ -75,29 +75,40 @@ int main(int argc, char *argv[]) {
     RBtree buyTree = RBtree("buy");
     vector<float> orderlog;
 
-    if (argc < 2) {
-        std::cout << "Please supply the name of the input file\n";
-    } else {
-        // Read input
-        ifstream inFile(argv[1]);
-        int n;
-        inFile >> n;
-        string orderType;
-        float price;
-        u_int32_t ID;
+    if (false) {
+        if (argc < 2) {
+            std::cout << "Please supply the name of the input file\n";
+        } else {
+            // Read input
+            ifstream inFile(argv[1]);
+            int n;
+            inFile >> n;
+            string orderType;
+            float price;
+            u_int32_t ID;
 
-        for (int i = 0; i < n; i++) {
-            inFile >> orderType >> price >> ID;
+            for (int i = 0; i < n; i++) {
+                inFile >> orderType >> price >> ID;
 
-            // Generate orders
-            newOrder(orderType, price, ID, buyTree, sellTree);
+                // Generate orders
+                newOrder(orderType, price, ID, buyTree, sellTree);
+            }
         }
-    }
 
-    // Print trees to order results
-    buyTree.preorderPrint(buyTree.root);
-    cout << endl;
-    sellTree.preorderPrint(sellTree.root);
+        // Print trees to order results
+        buyTree.preorderPrint(buyTree.root);
+        cout << endl;
+        sellTree.preorderPrint(sellTree.root);
+    } else {
+        cout << "Begin processing" << endl;
+        cout << "..." << endl;
+        cout << "..." << endl;
+        int upperbound = 2000000;
+        for (int i = 0; i <= upperbound; i++) {
+            newOrder("buy", i, 111, buyTree, sellTree);
+        }
+        cout << "Finished processing ..." << upperbound << " orders" << endl;
+    }
 }
 
 // ------------------------------------------------------------------------------------ //
