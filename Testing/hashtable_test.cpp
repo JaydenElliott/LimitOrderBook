@@ -1,4 +1,3 @@
-#pragma once
 #include "../datastructures/Hashtable.hpp"
 
 #include "catch.hpp"

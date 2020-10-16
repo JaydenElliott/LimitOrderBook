@@ -28,7 +28,7 @@ class HashTable {
         }
         this->sizeExponent = sizeExponent;
         this->tableSize = pow(2, sizeExponent);
-        this->hashVector = vector<HashNode *>(tableSize);
+        this->hashVector = vector<HashNode *>(tableSize, 0);
     }
     ~HashTable() {
         for (int i = 0; i < hashVector.size(); i++) {
@@ -66,11 +66,51 @@ class HashTable {
         return false;
     }
 
-    void del(size_t hashIndex) {
-        ;
+    bool getPrev(size_t ID, HashNode &node) {
+        size_t newIndex = generateHash(ID);
+        HashNode *initElem = hashVector.at(newIndex);
+        HashNode *prevElem;
+        while (initElem != nullptr) {
+            if (initElem->ID == ID) {
+                node = *prevElem;
+                return true;
+            }
+            prevElem = initElem;
+            initElem = initElem->nextNode;
+        }
+        return false;
     }
 
     int sizeExponent;
     int tableSize;
     vector<HashNode *> hashVector;
+    bool del(size_t ID);
+    void print();
 };
+
+bool HashTable::del(size_t ID) {
+    HashNode *currNode;
+    HashNode *prevNode;
+    bool res = get(ID, *currNode);
+    bool prev = getPrev(ID, *prevNode);
+    if (prev == true) prevNode->nextNode = currNode->nextNode;
+    if (res == true) {
+        delete currNode;
+    }
+    return false;
+}
+
+void HashTable::print() {
+    for (int i = 0; i < hashVector.size(); i++) {
+        cout << hashVector.at(i)->ID << endl;
+        cout << "start linked list" << endl;
+        if (hashVector.at(i)->nextNode != nullptr) {
+            HashNode *tempElem = hashVector.at(i);
+            while (tempElem->nextNode != nullptr) {
+                cout << tempElem->nextNode->ID << endl;
+                tempElem = tempElem->nextNode;
+            }
+            cout << "endl linked list" << endl;
+        }
+    }
+}

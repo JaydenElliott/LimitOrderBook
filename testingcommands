@@ -1,0 +1,1 @@
+g++ -std=c++11 Testings/hashtable_test.cpp -o testout && ./testout --success
