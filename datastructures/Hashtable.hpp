@@ -29,30 +29,28 @@ class HashTable {
         this->tableSize = pow(2, sizeExponent);
         this->hashVector = vector<HashNode *>(tableSize, nullptr);
     }
-    // ~HashTable() {
-    //     for (int i = 0; i < hashVector.size(); i++) {
-    //         cout << "iter " << i << endl;
-    //         HashNode *currnode = hashVector.at(i);
+    ~HashTable() {
+        for (int i = 0; i < hashVector.size(); i++) {
+            HashNode *currnode = hashVector.at(i);
 
-    //         while (currnode != nullptr) {
-    //             HashNode *tempNode = currnode;
-    //             cout << "HERE " << currnode << endl;
-    //             currnode = currnode->nextNode;
-    //             delete tempNode;
-    //         }
-    //         hashVector.at(i) = nullptr;
-    //     }
-    //     cout << "end destruct" << endl;
-    // };
+            while (currnode != nullptr) {
+                HashNode *tempNode = currnode;
+
+                currnode = currnode->nextNode;
+                delete tempNode;
+            }
+            hashVector.at(i) = nullptr;
+        }
+    };
 
     int sizeExponent;
     int tableSize;
     vector<HashNode *> hashVector;
-    bool del(size_t ID);
+    void del(size_t ID);
     void print();
     bool getelem(size_t ID);
     bool get(size_t ID, HashNode &node);
-    void put(int price, size_t ID);
+    void insert(int price, size_t ID);
     size_t generateHash(size_t ID);
 };
 
@@ -60,12 +58,12 @@ size_t HashTable::generateHash(size_t ID) {
     return ((ID * knuth) >> (32 - this->sizeExponent)) % tableSize;  // TODO check
 }
 
-void HashTable::put(int price, size_t ID) {
+void HashTable::insert(int price, size_t ID) {
     size_t newIndex = generateHash(ID);
-    if (hashVector[newIndex] == nullptr) {
-        hashVector[newIndex] = new HashNode(price, ID);
+    if (hashVector.at(newIndex) == nullptr) {
+        hashVector.at(newIndex) = new HashNode(price, ID);
     } else {
-        HashNode *currNode = hashVector[newIndex];
+        HashNode *currNode = hashVector.at(newIndex);
         while (currNode->nextNode != nullptr) {
             currNode = currNode->nextNode;
         }
@@ -89,46 +87,54 @@ bool HashTable::get(size_t ID, HashNode &node) {
     return false;
 }
 
-bool HashTable::del(size_t ID) {
+void HashTable::del(size_t ID) {
     size_t Index = generateHash(ID);
-    HashNode *currNode = hashVector[Index];
-    HashNode *prevNode = nullptr;
 
-    if (currNode == nullptr) {
-        cout << "Already deleted" << endl;
-        return false;
-    }
+    if (hashVector.at(Index) != nullptr) {
+        HashNode *currNode = hashVector.at(Index);
+        HashNode *prevNode = nullptr;
 
-    while (currNode != nullptr && currNode->ID != ID) {
-        prevNode = currNode;
-        currNode = currNode->nextNode;
+        while (currNode != nullptr) {
+            if (currNode->ID == ID) {
+                break;
+            }
+            prevNode = currNode;
+            currNode = currNode->nextNode;
+        }
+        if (currNode->ID == ID && prevNode == nullptr) {
+            HashNode *nextnode = currNode->nextNode;
+            delete currNode;
+            hashVector.at(Index) = nextnode;
+        } else if (currNode->ID == ID && prevNode != nullptr) {
+            HashNode *nextnode = currNode->nextNode;
+            delete currNode;
+            prevNode->nextNode = nextnode;
+        }
     }
-    if (currNode == nullptr) {
-        cout << "a;lskdjf;kl" << endl;
-        return false;
-    }
-    if (prevNode == nullptr) {
-        cout << "condit 1" << endl;
-        this->hashVector[Index] = currNode;
-        cout << "hashy" << hashVector[Index]->ID << endl;
-        cout << "currnode = " << currNode->ID << endl;
-        // cout << hashVector[Index] << endl;
-        // cout << currNode->ID << endl;
-
-    } else {
-        cout << "condit 2" << endl;
-        prevNode->nextNode = currNode;
-    }
-
-    cout << "hashy2 = " << hashVector[Index]->ID << endl;
-    cout << "currnode2 = " << currNode->ID << endl;
-    delete currNode;
-    currNode = nullptr;
-    cout << "currnode2 = " << currNode << endl;
-    cout << "hash vector urg" << hashVector[Index] << endl;
-    // cout << currNode->ID << endl;
-    return true;
 }
+
+// void remove(int key) {
+//     int hash = (key % TABLE_SIZE);
+//     if (table[hash] != NULL) {
+//         LinkedHashEntry *prevEntry = NULL;
+//         LinkedHashEntry *entry = table[hash];
+//         while (entry->getNext() != NULL && entry->getKey() != key) {
+//             prevEntry = entry;
+//             entry = entry->getNext();
+//         }
+//         if (entry->getKey() == key) {
+//             if (prevEntry == NULL) {
+//                 LinkedHashEntry *nextEntry = entry->getNext();
+//                 delete entry;
+//                 table[hash] = nextEntry;
+//             } else {
+//                 LinkedHashEntry *next = entry->getNext();
+//                 delete entry;
+//                 prevEntry->setNext(next);
+//             }
+//         }
+//     }
+// }
 
 void HashTable::print() {
     for (int i = 0; i < hashVector.size(); i++) {
@@ -136,14 +142,12 @@ void HashTable::print() {
             continue;
         }
         cout << hashVector.at(i)->ID << endl;
-        cout << "start linked list" << endl;
         if (hashVector.at(i)->nextNode != nullptr) {
             HashNode *tempElem = hashVector.at(i);
             while (tempElem->nextNode != nullptr) {
                 cout << tempElem->nextNode->ID << endl;
                 tempElem = tempElem->nextNode;
             }
-            cout << "endl linked list" << endl;
         }
     }
 }

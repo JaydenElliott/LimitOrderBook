@@ -11,22 +11,26 @@ using namespace std;
 int main() {
     //---------------HASHTABLE--------------//
     HashTable testTable;
-    testTable = HashTable(1);
-    testTable.put(30, 11211);
-    // testTable.put(28, 11161);
-    // testTable.put(22, 11811);
-    // testTable.put(19, 11111);
-    cout << "!!! start print 1 !!!" << endl;
+    testTable = HashTable(0);
+    testTable.insert(30, 11211);
+    // testTable.insert(28, 11161);
+    // testTable.insert(22, 11811);
+    // testTable.insert(19, 11111);
+    cout << endl;
+    cout << "Before" << endl;
     testTable.print();
-    cout << "!!! end print 1 !!!" << endl;
     cout << endl;
-    cout << "!!! start delele !!!" << endl;
-    bool a = testTable.del(11211);
-    cout << (a ? "true" : "false") << endl;
-    cout << "!!! finish delele !!!" << endl;
-    cout << endl;
+    cout << "After" << endl;
+    testTable.del(11211);
+    testTable.print();
 
-    cout << testTable.hashVector.at(1)->ID << endl;
+    // cout << "!!! end print 1 !!!" << endl;
+    // cout << endl;
+    // cout << "!!! start delele !!!" << endl;
+    // bool a =
+    // cout << (a ? "true" : "false") << endl;
+    // cout << "!!! finish delele !!!" << endl;
+    // cout << endl;
 
     //---------------RBTREE--------------//
 
