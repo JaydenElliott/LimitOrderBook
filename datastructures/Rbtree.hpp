@@ -5,8 +5,8 @@ using namespace std;
 
 class RBtree {
    public:
-    Node *buyMax = nullptr;   // if buy tree //TODO need to update max/min
-    Node *sellMin = nullptr;  // if sell tree
+    Node *buyMax = nullptr;
+    Node *sellMin = nullptr;
     Node *NIL = new Node();
     Node *root = NIL;
     RBtree(string treetype) {
@@ -21,7 +21,7 @@ class RBtree {
         Node *y = new Node();
         Node *x = new Node();
         y = NIL;
-        x = this->root;  // TODO: could make this a parameter to stop the scaling of the tree
+        x = this->root;
 
         while (x != NIL) {
             y = x;
@@ -41,7 +41,6 @@ class RBtree {
             currnode->right = NIL;
             this->buyMax = currnode;
             this->sellMin = currnode;
-            // currnode->colour = RED;  // TODO : changed
         } else if (currnode->price < y->price) {
             currnode->parent = y;
             y->left = currnode;
@@ -75,14 +74,11 @@ class RBtree {
 
     void insert_fixup(Node *currnode) {
         while (currnode != root && currnode->parent->colour == RED) {
-            // TODO figured out that the problem is occuring when node = 16.
-
             // Category 1
             if (currnode->parent == currnode->parent->parent->left) {
                 Node *y = new Node();
                 y = currnode->parent->parent->right;
                 // C1 Case 1
-
                 if (y->colour == RED) {
                     currnode->parent->colour = BLACK;
                     y->colour = BLACK;
@@ -90,7 +86,6 @@ class RBtree {
                     currnode = currnode->parent->parent;
                 }
                 // C1 Case 2
-
                 else {
                     if (currnode == currnode->parent->right) {
                         currnode = currnode->parent;
@@ -103,12 +98,10 @@ class RBtree {
 
             }
             // Category 2
-
             else {
                 Node *y = new Node();
                 y = currnode->parent->parent->left;
                 // C2 Case 1
-
                 if (y->colour == RED) {
                     currnode->parent->colour = BLACK;
                     y->colour = BLACK;
@@ -116,7 +109,6 @@ class RBtree {
                     currnode = currnode->parent->parent;
                 }
                 // C2 Case 2
-
                 else {
                     if (currnode == currnode->parent->left) {
                         currnode = currnode->parent;
@@ -130,7 +122,8 @@ class RBtree {
         }
         root->colour = BLACK;
     }
-    // TODO: multiple id's
+
+    // Search tree and find ID associated with price `tofind'
     Node *search_tree(float tofind, size_t ID) {
         Node *n = new Node();
         n = root;
@@ -176,7 +169,6 @@ class RBtree {
             y->left->parent = y;
             y->colour = todelete->colour;
         }
-
         if (ycolour == BLACK) {
             delete_fixup(x);
         }
@@ -184,6 +176,7 @@ class RBtree {
         todelete = nullptr;
     }
 
+    // Delete helper function
     void delete_fixup(Node *n) {
         Node *w = new Node();
         while (n != root && n->colour == BLACK) {
@@ -240,7 +233,7 @@ class RBtree {
         n->colour = BLACK;
     }
 
-    // Delete helper function
+    // Delete node helper function
     void rbTransplant(Node *n, Node *v) {
         if (n->parent == NIL) {
             this->root = v;
@@ -252,6 +245,7 @@ class RBtree {
         v->parent = n->parent;
     }
 
+    // Insert/Delete helper function
     void rotate_left(Node *currnode) {
         Node *y = currnode->right;
         currnode->right = y->left;
@@ -270,6 +264,7 @@ class RBtree {
         currnode->parent = y;
     }
 
+    // Insert/Delete helper function
     void rotate_right(Node *currnode) {
         Node *y = currnode->left;
         currnode->left = y->right;
@@ -294,21 +289,21 @@ class RBtree {
         }
         return n;
     }
-
-    /*
-    * Helper function for printing tree
-    * @param node: node to begin printing from
-    */
-    void preorderPrint(Node *node, bool withColour = false) {
-        if (node == nullptr)
-            return;
-        if (withColour == true) {
-            cout << "price = " << node->price << " colour = " << (node->colour == RED ? "RED" : "BLACK") << endl;
-        } else {
-            cout << "price = " << node->price << endl;
-        }
-
-        preorderPrint(node->left);
-        preorderPrint(node->right);
-    }
 };
+
+/*
+* Helper function for printing tree
+* @param node: node to begin printing from
+*/
+void preorderPrint(Node *node, bool withColour = false) {
+    if (node == nullptr)
+        return;
+    if (withColour == true) {
+        cout << "price = " << node->price << " colour = " << (node->colour == RED ? "RED" : "BLACK") << endl;
+    } else {
+        cout << "price = " << node->price << endl;
+    }
+
+    preorderPrint(node->left);
+    preorderPrint(node->right);
+}

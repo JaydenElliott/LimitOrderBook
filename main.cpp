@@ -42,7 +42,7 @@ void executeorder(Node *buyorder, Node *sellorder, RBtree &buytree, RBtree &sell
 * @param price: order price
 * @param ID: order ID
 */
-void newOrder(string ordertype, float price, int ID, RBtree &buytree, RBtree &selltree) {
+void newOrder(string ordertype, float price, size_t ID, RBtree &buytree, RBtree &selltree) {
     // cout << "begin order for type " << ordertype << " and price " << price << endl;
     if (ordertype == "buy") {
         if (selltree.root != selltree.NIL && price >= selltree.sellMin->price) {
@@ -75,41 +75,78 @@ int main(int argc, char *argv[]) {
     RBtree buyTree = RBtree("buy");
     vector<float> orderlog;
 
-    if (false) {
-        if (argc < 2) {
-            std::cout << "Please supply the name of the input file\n";
-        } else {
-            // Read input
-            ifstream inFile(argv[1]);
-            int n;
-            inFile >> n;
-            string orderType;
-            float price;
-            u_int32_t ID;
-
-            for (int i = 0; i < n; i++) {
-                inFile >> orderType >> price >> ID;
-
-                // Generate orders
-                newOrder(orderType, price, ID, buyTree, sellTree);
-            }
-        }
-
-        // Print trees to order results
-        buyTree.preorderPrint(buyTree.root);
-        cout << endl;
-        sellTree.preorderPrint(sellTree.root);
-    } else {
-        cout << "Begin processing" << endl;
-        cout << "..." << endl;
-        cout << "..." << endl;
-        int upperbound = 2000000;
-        for (int i = 0; i <= upperbound; i++) {
-            newOrder("buy", i, 111, buyTree, sellTree);
-        }
-        cout << "Finished processing ..." << upperbound << " orders" << endl;
+    for (int i = 0; i <= 1000000; i++) {
+        newOrder("buy", i, i + 10, buyTree, sellTree);
     }
+
+    return 0;
 }
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+//
+//
+//
+//
+//
+//
+// File reading
+
+//     if (false) {
+//         if (argc < 2) {
+//             std::cout << "Please supply the name of the input file\n";
+//         } else {
+//             // Read input
+//             ifstream inFile(argv[1]);
+//             int n;
+//             inFile >> n;
+//             string orderType;
+//             float price;
+//             u_int32_t ID;
+
+//             for (int i = 0; i < n; i++) {
+//                 inFile >> orderType >> price >> ID;
+
+//                 // Generate orders
+//                 newOrder(orderType, price, ID, buyTree, sellTree);
+//             }
+//         }
+
+//         // Print trees to order results
+//         buyTree.preorderPrint(buyTree.root);
+//         cout << endl;
+//         sellTree.preorderPrint(sellTree.root);
+//     } else {
+//         cout << "Begin processing" << endl;
+//         cout << "..." << endl;
+//         cout << "..." << endl;
+//         int upperbound = 2000000;
+//         for (int i = 0; i <= upperbound; i++) {
+//             newOrder("buy", i, 111, buyTree, sellTree);
+//         }
+//         cout << "Finished processing ..." << upperbound << " orders" << endl;
+//     }
+// }
 
 // ------------------------------------------------------------------------------------ //
 
@@ -117,4 +154,3 @@ int main(int argc, char *argv[]) {
 // TODO add compare function
 // Add functionality for buy and sell
 // If buy or sell is greater than min or max sell buy then dont need to do anything , just execute
-// Change int ID to uint32_t

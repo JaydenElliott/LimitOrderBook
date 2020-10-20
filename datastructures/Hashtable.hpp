@@ -74,12 +74,9 @@ void HashTable::insert(int price, size_t ID) {
 bool HashTable::get(size_t ID, HashNode &node) {
     size_t newIndex = generateHash(ID);
     HashNode *initElem = hashVector.at(newIndex);
-    cout << initElem->ID << endl;
     while (initElem != nullptr) {
         if (initElem->ID == ID) {
-            cout << "!! 1 !!" << endl;
             node = *initElem;
-            cout << "!! 2 !!" << endl;
             return true;
         }
         initElem = initElem->nextNode;
@@ -101,40 +98,18 @@ void HashTable::del(size_t ID) {
             prevNode = currNode;
             currNode = currNode->nextNode;
         }
-        if (currNode->ID == ID && prevNode == nullptr) {
+
+        if (currNode->ID == ID) {
             HashNode *nextnode = currNode->nextNode;
             delete currNode;
-            hashVector.at(Index) = nextnode;
-        } else if (currNode->ID == ID && prevNode != nullptr) {
-            HashNode *nextnode = currNode->nextNode;
-            delete currNode;
-            prevNode->nextNode = nextnode;
+            if (prevNode == nullptr) {
+                hashVector.at(Index) = nextnode;
+            } else {
+                prevNode->nextNode = nextnode;
+            }
         }
     }
 }
-
-// void remove(int key) {
-//     int hash = (key % TABLE_SIZE);
-//     if (table[hash] != NULL) {
-//         LinkedHashEntry *prevEntry = NULL;
-//         LinkedHashEntry *entry = table[hash];
-//         while (entry->getNext() != NULL && entry->getKey() != key) {
-//             prevEntry = entry;
-//             entry = entry->getNext();
-//         }
-//         if (entry->getKey() == key) {
-//             if (prevEntry == NULL) {
-//                 LinkedHashEntry *nextEntry = entry->getNext();
-//                 delete entry;
-//                 table[hash] = nextEntry;
-//             } else {
-//                 LinkedHashEntry *next = entry->getNext();
-//                 delete entry;
-//                 prevEntry->setNext(next);
-//             }
-//         }
-//     }
-// }
 
 void HashTable::print() {
     for (int i = 0; i < hashVector.size(); i++) {
