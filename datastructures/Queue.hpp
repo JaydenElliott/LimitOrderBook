@@ -22,7 +22,6 @@ class Queue {
         // cout << "appending " << ID << endl;
     }
 
-    /// Very rare // FIXME - if cant find then terminate:
     void find_and_remove(size_t ID) {
         int i = 0;
         while (1) {
@@ -33,12 +32,14 @@ class Queue {
             i++;
         }
     }
+
     void print() {
         for (int i : ID_Queue) {
             cout << i << ", ";
         }
         cout << endl;
     }
+
     size_t size() {
         return ID_Queue.size();
     }

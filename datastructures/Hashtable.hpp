@@ -55,7 +55,7 @@ class HashTable {
 };
 
 size_t HashTable::generateHash(size_t ID) {
-    return ((ID * knuth) >> (32 - this->sizeExponent)) % tableSize;  // TODO check
+    return ((ID * knuth) >> (32 - this->sizeExponent)) % tableSize;  // TODO replace with simply mod
 }
 
 void HashTable::insert(int price, size_t ID) {

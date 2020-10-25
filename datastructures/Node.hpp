@@ -8,7 +8,6 @@ using namespace std;
 // so that only new nodes get id pushes.
 class Node {
    public:
-    // Node() {} // TODO I commented this out, not sure if its needed as defaults
     Node(float price = 0, size_t ID = 0) {
         this->colour = BLACK;
         this->price = price;
@@ -28,5 +27,4 @@ class Node {
     Node *parent = nullptr;
     Node *left = nullptr;
     Node *right = nullptr;
-    // Node *sucessor = nullptr;
 };
