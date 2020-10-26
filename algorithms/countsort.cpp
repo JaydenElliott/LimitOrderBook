@@ -1,9 +1,11 @@
 #include "importsGlobal.hpp"
 using namespace std;
 
-void countSort(vector<int>& inputArray, vector<int>& outputArray) {
+// Count sort implementation
+void sort(vector<int>& inputArray) {
+    vector<int> outputArray(inputArray.size());
     vector<int> countArray(10, 0);
-    for (int j = 0; j < inputArray.size() - 1; j++) {
+    for (int j = 0; j < inputArray.size(); j++) {
         countArray[inputArray[j]] = countArray[inputArray[j]] + 1;
     }
 
@@ -16,33 +18,21 @@ void countSort(vector<int>& inputArray, vector<int>& outputArray) {
         countArray[inputArray[j]] = countArray[inputArray[j]] - 1;
     }
 
+    for (int j = 0; j < inputArray.size(); j++) {
+        inputArray[j] = outputArray[j];
+    }
 }
-
-// for (int i = 0; i < arr.size(); i++)
-//     count[arr[i] - min]++;
-
-// for (int i = 1; i < count.size(); i++)
-//     count[i] += count[i - 1];
-
-// for (int i = arr.size() - 1; i >= 0; i--) {
-//     output[count[arr[i] - min] - 1] = arr[i];
-//     count[arr[i] - min]--;
-// }
-
-// for (int i = 0; i < arr.size(); i++)
-//     arr[i] = output[i];
-// }
 
 int main() {
     vector<int> inputArray{1, 3, 5, 2, 9, 4, 5};
-    vector<int> outputArray(inputArray.size());
-    countSort(inputArray, outputArray);
+    countSort1(inputArray);
 
     cout << endl;
     cout << endl;
     cout << endl;
-    for (int i : outputArray) {
+    for (int i : inputArray) {
         cout << i << ", ";
     }
+
     return 0;
 }

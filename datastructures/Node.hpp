@@ -1,5 +1,5 @@
-#include "../importsGlobal.hpp"
-#include "Queue.hpp"
+#include "../imports/importsGlobal.hpp"
+#include "queue.hpp"
 #pragma once
 
 using namespace std;

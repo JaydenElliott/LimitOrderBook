@@ -1,5 +1,4 @@
-#include "../datastructures/Queue.hpp"
-
+#include "../datastructures/queue.hpp"
 #include "catch.hpp"
 using namespace std;
 

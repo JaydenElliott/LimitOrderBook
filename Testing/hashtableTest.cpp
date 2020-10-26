@@ -1,5 +1,4 @@
-#include "../datastructures/Hashtable.hpp"
-
+#include "../datastructures/hashtable.hpp"
 #include "catch.hpp"
 using namespace std;
 
@@ -31,4 +30,3 @@ TEST_CASE("1.4: Delete Entry", "[multi-file:1]") {
     testTable.del(11211);
     REQUIRE(testTable.hashVector.at(0) == 0);
 }
-
