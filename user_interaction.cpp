@@ -1,7 +1,7 @@
-#include "datastructures/Hashtable.hpp"
-#include "datastructures/Node.hpp"
-#include "datastructures/Queue.hpp"
-#include "datastructures/Rbtree.hpp"
+#include "datastructures/hashtable.hpp"
+#include "datastructures/node.hpp"
+#include "datastructures/queue.hpp"
+#include "datastructures/rbtree.hpp"
 
 using namespace std;
 
@@ -15,55 +15,63 @@ void order_execution_log(float price) {
 
 /*
 * Random number generator
-* random_device rd; and mt19937 gen(rd());re global to prevent multiple calls
+* random_device rd; and mt19937 gen(rd()) are global to prevent multiple calls
 */
 float getRandInRange(float min_value, float max_value_inc) {
     uniform_real_distribution<float> distr(min_value, max_value_inc);
     return distr(gen);
 }
 
-void executeorder(Node *buyorder, Node *sellorder, RBtree &buytree, RBtree &selltree) {
+/*
+* Utility function for newOrder()
+* Handles deletion in red-black trees, order log and hash table
+*/
+void executeorder(Node *buyorder, Node *sellorder, RBtree &buytree, RBtree &selltree, HashTable &htable) {
     if (buyorder == nullptr) {
         order_execution_log(sellorder->price);
         selltree.delete_price(sellorder);
+        htable.del(sellorder->ID);
     } else if (sellorder == nullptr) {
         order_execution_log(buyorder->price);
         buytree.delete_price(buyorder);
+        htable.del(buyorder->ID);
     } else {
         order_execution_log(buyorder->price);
         buytree.delete_price(buyorder);
         selltree.delete_price(sellorder);
+        htable.del(sellorder->ID);
+        htable.del(buyorder->ID);
     }
 }
 
 /*
-* Utility function to handle orders
+* Handles order processing
 * @param ordertype: buy, sell
 * @param price: order price
 * @param ID: order ID
 */
-void newOrder(string ordertype, float price, size_t ID, RBtree &buytree, RBtree &selltree) {
+void newOrder(string ordertype, float price = 0, size_t ID, RBtree &buytree, RBtree &selltree, HashTable &htable) {
     // cout << "begin order for type " << ordertype << " and price " << price << endl;
     if (ordertype == "buy") {
         if (selltree.root != selltree.NIL && price >= selltree.sellMin->price) {
-            // Order can be executed immediately, no need to insert
-            executeorder(nullptr, selltree.sellMin, buytree, selltree);
+            //Buy price >= max sell price ----- Order can be executed immediately
+            executeorder(nullptr, selltree.sellMin, buytree, selltree, htable);
         } else {
             Node *buynode = new Node(price, ID);
             buytree.insert_price(buynode);
-            //TODO update hash (similarly for other functions)
+            htable.insert(price, ID);
         }
     } else if (ordertype == "sell") {
-        // cout << buytree.buyMax->price << endl;
         if (buytree.root != buytree.NIL && price <= buytree.buyMax->price) {
-            // Order can be executed immediately, no need to insert
-            executeorder(buytree.buyMax, nullptr, buytree, selltree);
+            //Sell price <= max sell price ----- Order can be executed immediately
+            executeorder(buytree.buyMax, nullptr, buytree, selltree, htable);
         } else {
             Node *sellnode = new Node(price, ID);
             selltree.insert_price(sellnode);
+            htable.insert(price, ID);
         }
     } else if (ordertype == "delete") {
-        ;  // search has function instead
+        htable.del(ID);  // TODO: This needs to link to rbtree delete also
     } else {
         throw runtime_error("Invalid input. Valid input: buy, sell, delete");
     }
@@ -73,11 +81,14 @@ int main(int argc, char *argv[]) {
     // Insantiate trees and orderlog
     RBtree sellTree = RBtree("sell");
     RBtree buyTree = RBtree("buy");
+    HashTable table = HashTable(4);
     vector<float> orderlog;
 
-    for (int i = 0; i <= 1000000; i++) {
-        newOrder("buy", i, i + 10, buyTree, sellTree);
+    for (int i = 0; i <= 100; i++) {
+        newOrder("buy", i, i + 10, buyTree, sellTree, table);
     }
+
+    table.print();
 
     return 0;
 }

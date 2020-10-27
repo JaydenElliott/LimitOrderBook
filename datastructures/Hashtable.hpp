@@ -48,7 +48,6 @@ class HashTable {
     vector<HashNode *> hashVector;
     void del(size_t ID);
     void print();
-    bool getelem(size_t ID);
     bool get(size_t ID, HashNode &node);
     void insert(int price, size_t ID);
     size_t generateHash(size_t ID);
@@ -110,7 +109,7 @@ void HashTable::del(size_t ID) {
         }
     }
 }
-
+// Prints ID's in hashtable
 void HashTable::print() {
     for (int i = 0; i < hashVector.size(); i++) {
         if (hashVector.at(i) == nullptr) {
@@ -126,3 +125,5 @@ void HashTable::print() {
         }
     }
 }
+
+//TODO link hash table to rbtree
