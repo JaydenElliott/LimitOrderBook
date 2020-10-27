@@ -8,4 +8,3 @@
 
 #define BLACK true
 #define RED false
-

@@ -58,8 +58,7 @@ void newOrder(string ordertype, float price = 0, size_t ID, RBtree &buytree, RBt
             executeorder(nullptr, selltree.sellMin, buytree, selltree, htable);
         } else {
             Node *buynode = new Node(price, ID);
-            buytree.insert_price(buynode);
-            htable.insert(price, ID);
+            htable.insert(price, ID, buynode, buytree);
         }
     } else if (ordertype == "sell") {
         if (buytree.root != buytree.NIL && price <= buytree.buyMax->price) {
@@ -67,11 +66,12 @@ void newOrder(string ordertype, float price = 0, size_t ID, RBtree &buytree, RBt
             executeorder(buytree.buyMax, nullptr, buytree, selltree, htable);
         } else {
             Node *sellnode = new Node(price, ID);
-            selltree.insert_price(sellnode);
-            htable.insert(price, ID);
+            htable.insert(price, ID, sellnode, selltree);
         }
-    } else if (ordertype == "delete") {
-        htable.del(ID);  // TODO: This needs to link to rbtree delete also
+    } else if (ordertype == "delete_sell") {
+        htable.del(ID, selltree);
+    } else if (ordertype == "delete_buy") {
+        htable.del(ID, buytree);
     } else {
         throw runtime_error("Invalid input. Valid input: buy, sell, delete");
     }

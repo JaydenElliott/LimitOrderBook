@@ -32,7 +32,7 @@ class RBtree {
 void RBtree::insert_price(Node *currnode) {
     Node *y = new Node();
     Node *x = new Node();
-    y = NIL;
+    y = this->NIL;
     x = this->root;
 
     while (x != this->NIL) {
@@ -184,6 +184,7 @@ void RBtree::delete_price(Node *todelete) {
     if (ycolour == BLACK) {
         delete_fixup(x);
     }
+
     delete todelete;
     todelete = nullptr;
 }

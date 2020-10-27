@@ -1,4 +1,6 @@
 #include "../imports/importsGlobal.hpp"
+#include "node.hpp"
+#include "rbtree.hpp"
 #pragma once
 
 using namespace std;
@@ -8,14 +10,16 @@ const size_t knuth = 2654435769;  // (1/golden ratio)*(2^32)
 class HashNode {
    public:
     HashNode(){};
-    HashNode(float price, size_t ID) {
+    HashNode(float price, size_t ID, Node *rbNode = nullptr) {
         this->price = price;
         this->ID = ID;
+        this->rbNode = rbNode;
     }
 
     float price;
     size_t ID;
     HashNode *nextNode = nullptr;
+    Node *rbNode = nullptr;
 };
 
 class HashTable {
@@ -46,10 +50,10 @@ class HashTable {
     int sizeExponent;
     int tableSize;
     vector<HashNode *> hashVector;
-    void del(size_t ID);
+    void del(size_t ID, RBtree &rbtree);
     void print();
     bool get(size_t ID, HashNode &node);
-    void insert(int price, size_t ID);
+    void insert(int price, size_t ID, Node *rbnode, RBtree &tree);
     size_t generateHash(size_t ID);
 };
 
@@ -57,16 +61,17 @@ size_t HashTable::generateHash(size_t ID) {
     return ((ID * knuth) >> (32 - this->sizeExponent)) % tableSize;  // TODO replace with simply mod
 }
 
-void HashTable::insert(int price, size_t ID) {
+void HashTable::insert(int price, size_t ID, Node *rbnode, RBtree &tree) {
     size_t newIndex = generateHash(ID);
     if (hashVector.at(newIndex) == nullptr) {
-        hashVector.at(newIndex) = new HashNode(price, ID);
+        hashVector.at(newIndex) = new HashNode(price, ID, rbnode);
+        tree.insert_price(rbnode);
     } else {
         HashNode *currNode = hashVector.at(newIndex);
         while (currNode->nextNode != nullptr) {
             currNode = currNode->nextNode;
         }
-        currNode->nextNode = new HashNode(price, ID);
+        currNode->nextNode = new HashNode(price, ID, rbnode);
     }
 }
 
@@ -83,9 +88,8 @@ bool HashTable::get(size_t ID, HashNode &node) {
     return false;
 }
 
-void HashTable::del(size_t ID) {
+void HashTable::del(size_t ID, RBtree &rbtree) {
     size_t Index = generateHash(ID);
-
     if (hashVector.at(Index) != nullptr) {
         HashNode *currNode = hashVector.at(Index);
         HashNode *prevNode = nullptr;
@@ -100,6 +104,7 @@ void HashTable::del(size_t ID) {
 
         if (currNode->ID == ID) {
             HashNode *nextnode = currNode->nextNode;
+            rbtree.delete_price(currNode->rbNode);
             delete currNode;
             if (prevNode == nullptr) {
                 hashVector.at(Index) = nextnode;
@@ -125,5 +130,3 @@ void HashTable::print() {
         }
     }
 }
-
-//TODO link hash table to rbtree

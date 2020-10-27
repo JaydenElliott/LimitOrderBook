@@ -1,9 +1,11 @@
+#include "../datastructures/hashtable.hpp"
 #include "../datastructures/node.hpp"
 #include "../datastructures/rbtree.hpp"
 #include "catch.hpp"
 using namespace std;
 
 RBtree buytree = RBtree("buy");
+HashTable testTableRB = HashTable(5);
 TEST_CASE("1.1: Insert Elements and Fix-Up", "[multi-file:1]") {
     Node* ins1 = new Node(12, 111);
     Node* ins2 = new Node(15, 114);
