@@ -36,7 +36,6 @@ void RBtree::insert_price(Node *currnode) {
     Node *x = new Node();
     y = this->NIL;
     x = this->root;
-
     while (x != this->NIL) {
         y = x;
         if (currnode->price < x->price) {
@@ -74,7 +73,7 @@ void RBtree::insert_price(Node *currnode) {
         currnode->left = this->NIL;
         currnode->right = this->NIL;
         currnode->colour = RED;
-        if (currnode->price > this->buyMax->price && this->treetype == "buy") {
+        if (this->treetype == "buy" && currnode->price > this->buyMax->price) {
             this->buyMax = currnode;
         }
     } else {
@@ -192,11 +191,11 @@ void RBtree::delete_price(Node *todelete) {
     }
 
     // Update max in buy-tree or min in sell-tree
-    if (this->treetype == "buy" && (this->root->right != nullptr || this->root->left != nullptr)) {
-        cout << "Updating max" << endl;
+
+    // this isnt going to work as left and right will always be NIL nodes
+    if (this->treetype == "buy" && (this->root->right != this->NIL || this->root->left != this->NIL)) {
         this->buyMax = findmax();
-        cout << "finis chercher la maximum" << endl;
-    } else if (this->treetype == "sell" && (this->root->right != nullptr || this->root->left != nullptr)) {
+    } else if (this->treetype == "sell" && (this->root->right != this->NIL || this->root->left != this->NIL)) {
         this->sellMin = findmin();
     }
 
@@ -273,7 +272,7 @@ void RBtree::rbTransplant(Node *n, Node *v) {
     v->parent = n->parent;
 }
 
-// Insert/Delete helper function
+// Insert/Delete fix-up helper function
 void RBtree::rotate_left(Node *currnode) {
     Node *y = currnode->right;
     currnode->right = y->left;

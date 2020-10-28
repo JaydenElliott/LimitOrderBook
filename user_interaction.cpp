@@ -1,47 +1,53 @@
+#include <chrono>
+
 #include "datastructures/hashtable.hpp"
 #include "datastructures/node.hpp"
 #include "datastructures/queue.hpp"
 #include "datastructures/rbtree.hpp"
 
 using namespace std;
+using namespace std::chrono;
 
 random_device rd;
 mt19937 gen(rd());
 
-vector<float> orderlog;  // check the below function actually modifies the state
-void order_execution_log(float price) {
-    orderlog.push_back(price);
+/*
+* ---------------- Description ----------------
+* Handles order logging. Will push order price,
+* and execution time to a file.
+* Also responsible for handling the executed price
+* vector
+*
+* ---------------- Parameters ----------------
+* price:    order price
+* orderlog: reference to the executed price vector
+* 
+*/
+void push_to_log(float price, vector<float> &log) {
+    log.push_back(price);
 }
 
 /*
-* Random number generator
-* random_device rd; and mt19937 gen(rd()) are global to prevent multiple calls
+* ---------------- Description ----------------
+* Handles order execution. Will be called by
+* "newOrder()" when a sell order is matched to
+*  a buy order
+*
+* ---------------- Parameters ----------------
+* ordertype:  buy or sell
+* price:      order price
+* ID:         order ID
+* buytree:    reference to the buytree
+* selltree:   reference to the selltree
+* htable:     reference to the hashtable
+* orderlog:   reference to the file responsible for logging orders
 */
-float getRandInRange(float min_value, float max_value_inc) {
-    uniform_real_distribution<float> distr(min_value, max_value_inc);
-    return distr(gen);
-}
-
-/*
-* Utility function for newOrder()
-* Handles deletion in red-black trees, order log and hash table
-*/
-void executeorder(Node *buyorder, Node *sellorder, RBtree &buytree, RBtree &selltree, HashTable &htable) {
-    if (buyorder == nullptr) {
+void executeorder(Node *buyorder, Node *sellorder, RBtree &buytree, RBtree &selltree, HashTable &htable, vector<float> &orderlog) {
+    if (buyorder == nullptr) {  // sell order
+        // push_to_log(buyorder->price, orderlog);  // was causing errors
         htable.del(sellorder->ID, selltree);
     } else if (sellorder == nullptr) {
-        // order_execution_log(buyorder->price);
-
-        //
-
-        //
-        cout << "buytree max ID = " << buytree.buyMax->ID << endl;
-        cout << " buyorder id =  " << buyorder->ID << endl;
-
-        // PROBLEM IS ABOVE, BUYORDER != BUYMAX ORDER
-        cout << " buyorder price = " << buyorder->price << endl;
-        cout << endl;
-
+        // push_to_log(buyorder->price, orderlog);  // was causing errors
         htable.del(buyorder->ID, buytree);
     } else {
         htable.del(sellorder->ID, selltree);
@@ -50,16 +56,24 @@ void executeorder(Node *buyorder, Node *sellorder, RBtree &buytree, RBtree &sell
 }
 
 /*
-* Handles order processing
-* @param ordertype: buy, sell
-* @param price: order price
-* @param ID: order ID
+*  ---------------- Description ----------------
+* Processes the new orders and sends them to
+ the right functions / datastructures
+*
+* ---------------- Parameters ----------------
+* ordertype:  buy or sell
+* price:      order price
+* ID:         order ID
+* buytree:    reference to the buytree
+* selltree:   reference to the selltree
+* htable:     reference to the hashtable
+* orderlog:   reference to the file responsible for logging orders
 */
-void newOrder(string ordertype, float price, size_t ID, RBtree &buytree, RBtree &selltree, HashTable &htable) {
+void newOrder(string ordertype, float price, size_t ID, RBtree &buytree, RBtree &selltree, HashTable &htable, vector<float> &orderlog) {
     if (ordertype == "buy") {
         if (selltree.root != selltree.NIL && price >= selltree.sellMin->price) {
             //Buy price >= max sell price ----- Order can be executed immediately
-            executeorder(nullptr, selltree.sellMin, buytree, selltree, htable);
+            executeorder(nullptr, selltree.sellMin, buytree, selltree, htable, orderlog);
         } else {
             Node *buynode = new Node(price, ID);
             htable.insert(price, ID, buynode, buytree);
@@ -67,9 +81,7 @@ void newOrder(string ordertype, float price, size_t ID, RBtree &buytree, RBtree 
     } else if (ordertype == "sell") {
         if (buytree.root != buytree.NIL && price <= buytree.buyMax->price) {
             //Sell price <= max sell price ----- Order can be executed immediately
-            cout << " BUYMAX ID = " << buytree.buyMax->ID << endl;
-            executeorder(buytree.buyMax, nullptr, buytree, selltree, htable);
-            cout << "CHECK CHECK 123" << endl;
+            executeorder(buytree.buyMax, nullptr, buytree, selltree, htable, orderlog);
         } else {
             Node *sellnode = new Node(price, ID);
             htable.insert(price, ID, sellnode, selltree);
@@ -87,20 +99,34 @@ int main(int argc, char *argv[]) {
     // Insantiate trees and orderlog
     RBtree sellTree = RBtree("sell");
     RBtree buyTree = RBtree("buy");
-    HashTable table = HashTable(4);
+    HashTable table = HashTable(24);
     vector<float> orderlog;
 
-    for (int i = 1; i <= 100; i++) {
-        newOrder("buy", i, i + 10, buyTree, sellTree, table);
+    auto start = high_resolution_clock::now();
+
+    int buyorders = 10000000;
+    for (int i = 1; i <= buyorders; i++) {
+        newOrder("buy", i, i + 10, buyTree, sellTree, table, orderlog);
     }
 
-    cout << "start sell orders" << endl;
-    for (int i = 1; i <= 100; i++) {
-        cout << endl;
-        cout << "start sell of " << i << endl;
-        cout << "---------------------------------------" << endl;
-        newOrder("sell", i, 1000 + i, buyTree, sellTree, table);
+    int sellorders = 10000000;
+    for (int i = 1; i <= sellorders; i++) {
+        newOrder("sell", i, 1000 + i, buyTree, sellTree, table, orderlog);
     }
+
+    auto end = high_resolution_clock::now();
+
+    auto duration = duration_cast<seconds>(end - start);
+
+    cout << "Time taken for " << buyorders + sellorders << " orders = " << duration.count() << " seconds" << endl;
+
+    // cout << orderlog.size() << endl;
+
+    // cout << "----- buy tree ------" << endl;
+    // buyTree.preorderPrint(buyTree.root);
+
+    // cout << "----- sell tree ------" << endl;
+    // sellTree.preorderPrint(sellTree.root);
     // cout << "start orderlog" << endl;
     // for (float i : orderlog) {
     //     cout << i << endl;

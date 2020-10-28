@@ -1,6 +1,7 @@
-- need a find max function to update hash.
 - update processing functions to include these
 - check log book
+- resize hashtable
+- replace order log with a file writer
 - create sort
 - create statistics...
 
