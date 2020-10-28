@@ -2,8 +2,13 @@
 #include "catch.hpp"
 using namespace std;
 
+/*
+* -------- TEST 1 ---------
+* Tests the basic functionality of the custom Queue class
+* ---- 1.1: Tests add functionality
+* ---- 1.2: Tests delete functionality
+*/
 Queue testQueue;
-
 TEST_CASE("1.1: Add ID", "[multi-file:1]") {
     testQueue.push(11111);
     testQueue.push(11111);

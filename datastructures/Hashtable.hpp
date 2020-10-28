@@ -63,9 +63,11 @@ size_t HashTable::generateHash(size_t ID) {
 
 void HashTable::insert(int price, size_t ID, Node *rbnode, RBtree &tree) {
     size_t newIndex = generateHash(ID);
+    cout << "...1.1..." << endl;
+    tree.insert_price(rbnode);
+    cout << "...1.2..." << endl;
     if (hashVector.at(newIndex) == nullptr) {
         hashVector.at(newIndex) = new HashNode(price, ID, rbnode);
-        tree.insert_price(rbnode);
     } else {
         HashNode *currNode = hashVector.at(newIndex);
         while (currNode->nextNode != nullptr) {
@@ -120,7 +122,7 @@ void HashTable::print() {
         if (hashVector.at(i) == nullptr) {
             continue;
         }
-        cout << hashVector.at(i)->ID << endl;
+        cout << hashVector.at(i)->ID << " " << hashVector.at(i)->price << endl;
         if (hashVector.at(i)->nextNode != nullptr) {
             HashNode *tempElem = hashVector.at(i);
             while (tempElem->nextNode != nullptr) {

@@ -1,12 +1,7 @@
 
--test insertion deletion between two data structures
-
 - update processing functions to include these
 - check log book
 - create sort
 - create statistics...
 
 
-
-
-insert price - hash table -> new entry 

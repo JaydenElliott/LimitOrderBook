@@ -313,7 +313,7 @@ void RBtree::preorderPrint(Node *node, bool withColour) {
     if (withColour == true) {
         cout << "price = " << node->price << " colour = " << (node->colour == RED ? "RED" : "BLACK") << endl;
     } else {
-        cout << "price = " << node->price << endl;
+        cout << "price = " << node->price << " ID = " << node->ID << endl;
     }
 
     preorderPrint(node->left);

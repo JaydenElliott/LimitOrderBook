@@ -51,7 +51,6 @@ void executeorder(Node *buyorder, Node *sellorder, RBtree &buytree, RBtree &sell
 * @param ID: order ID
 */
 void newOrder(string ordertype, float price = 0, size_t ID, RBtree &buytree, RBtree &selltree, HashTable &htable) {
-    // cout << "begin order for type " << ordertype << " and price " << price << endl;
     if (ordertype == "buy") {
         if (selltree.root != selltree.NIL && price >= selltree.sellMin->price) {
             //Buy price >= max sell price ----- Order can be executed immediately
