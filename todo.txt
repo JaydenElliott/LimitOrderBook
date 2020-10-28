@@ -1,7 +1,11 @@
-
+- need a find max function to update hash.
 - update processing functions to include these
 - check log book
 - create sort
 - create statistics...
+
+
+- need to make the max ID not max node:
+    - thus when deleting the max ID, it just moves on to the next value in the queue
 
 

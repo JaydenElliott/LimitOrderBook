@@ -27,6 +27,8 @@ class RBtree {
     void rotate_right(Node *currnode);
     Node *findMin(Node *n);
     void preorderPrint(Node *node, bool withColour = false);
+    Node *findmax();
+    Node *findmin();
 };
 
 void RBtree::insert_price(Node *currnode) {
@@ -51,8 +53,12 @@ void RBtree::insert_price(Node *currnode) {
         root = currnode;
         currnode->left = this->NIL;
         currnode->right = this->NIL;
-        this->buyMax = currnode;
-        this->sellMin = currnode;
+        if (this->treetype == "buy") {
+            this->buyMax = currnode;
+        } else {
+            this->sellMin = currnode;
+        }
+
     } else if (currnode->price < y->price) {
         currnode->parent = y;
         y->left = currnode;
@@ -183,6 +189,15 @@ void RBtree::delete_price(Node *todelete) {
     }
     if (ycolour == BLACK) {
         delete_fixup(x);
+    }
+
+    // Update max in buy-tree or min in sell-tree
+    if (this->treetype == "buy" && (this->root->right != nullptr || this->root->left != nullptr)) {
+        cout << "Updating max" << endl;
+        this->buyMax = findmax();
+        cout << "finis chercher la maximum" << endl;
+    } else if (this->treetype == "sell" && (this->root->right != nullptr || this->root->left != nullptr)) {
+        this->sellMin = findmin();
     }
 
     delete todelete;
@@ -318,4 +333,26 @@ void RBtree::preorderPrint(Node *node, bool withColour) {
 
     preorderPrint(node->left);
     preorderPrint(node->right);
+}
+
+Node *RBtree::findmax() {
+    if (this->root == nullptr) {
+        throw runtime_error("No elements in the tree");
+    }
+    Node *node = this->root;
+    while (node->right->price != 0 && node->right != nullptr) {
+        node = node->right;
+    }
+    return node;
+}
+
+Node *RBtree::findmin() {
+    if (this->root == nullptr) {
+        throw runtime_error("No elements in the tree");
+    }
+    Node *node = this->root;
+    while (node->left->price != 0 && node->left != nullptr) {
+        node = node->left;
+    }
+    return node;
 }

@@ -7,43 +7,39 @@ using namespace std;
 
 int main() {
     //  ---------------HASHTABLE-- ------------  //
-    // HashTable testTable;
-    // testTable = HashTable(0);
-    // testTable.insert(30, 11211);
-    // testTable.insert(28, 11161);
-    // // testTable.insert(22, 11811);
-    // // testTable.insert(19, 11111);
-    // cout << endl;
-    // cout << "Before" << endl;
-    // testTable.print();
-    // cout << endl;
-    // cout << "After" << endl;
-    // testTable.del(11161);
-    // testTable.del(11211);
-    // testTable.print();
-    // // cout << testTable.hashVector.at(0) << endl;
-    // cout << "!!! end print 1 !!!" << endl;
+    RBtree testRB2("buy");
+    HashTable testTable2(0);
+    Node *test21node = new Node(13, 111);
+    // Node *test22node = new Node(12, 110);
+
+    testTable2.insert(test21node->price, test21node->ID, test21node, testRB2);
+    // testTable2.insert(test21node->price, test21node->ID, test2node, testRB2);
+    testTable2.del(111, testRB2);
 
     //---------------RBTREE--------------//
 
-    RBtree buytree = RBtree("buy");
-    Node* ins1 = new Node(12, 111);
-    Node* ins2 = new Node(15, 114);
-    Node* ins3 = new Node(18, 131);
-    Node* ins4 = new Node(20, 122);
-    Node* ins5 = new Node(11, 191);
-    Node* ins6 = new Node(11, 171);
-    Node* ins7 = new Node(10, 16);
+    // RBtree buytree = RBtree("buy");
+    // Node* ins1 = new Node(12, 111);
+    // Node* ins2 = new Node(15, 114);
+    // Node* ins3 = new Node(18, 131);
+    // Node* ins4 = new Node(20, 122);
+    // Node* ins5 = new Node(11, 191);
+    // Node* ins6 = new Node(11, 171);
+    // Node* ins7 = new Node(10, 16);
 
-    buytree.insert_price(ins1);
-    buytree.insert_price(ins2);
-    buytree.insert_price(ins3);
-    buytree.insert_price(ins4);
-    buytree.insert_price(ins5);
-    buytree.insert_price(ins6);
-    buytree.insert_price(ins7);
+    // buytree.insert_price(ins1);
+    // buytree.insert_price(ins2);
+    // buytree.insert_price(ins3);
+    // buytree.insert_price(ins4);
+    // buytree.insert_price(ins5);
+    // buytree.insert_price(ins6);
+    // buytree.insert_price(ins7);
 
-    buytree.preorderPrint(buytree.root);
+    // // buytree.preorderPrint(buytree.root);
+
+    // cout << buytree.buyMax->price << endl;
+    // buytree.delete_price(ins4);
+    // cout << buytree.buyMax->price << endl;
 
     //---------------BOTH--------------//
     // HashTable testTable = HashTable(2);

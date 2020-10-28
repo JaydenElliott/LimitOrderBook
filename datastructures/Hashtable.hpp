@@ -63,9 +63,7 @@ size_t HashTable::generateHash(size_t ID) {
 
 void HashTable::insert(int price, size_t ID, Node *rbnode, RBtree &tree) {
     size_t newIndex = generateHash(ID);
-    cout << "...1.1..." << endl;
     tree.insert_price(rbnode);
-    cout << "...1.2..." << endl;
     if (hashVector.at(newIndex) == nullptr) {
         hashVector.at(newIndex) = new HashNode(price, ID, rbnode);
     } else {
@@ -92,6 +90,7 @@ bool HashTable::get(size_t ID, HashNode &node) {
 
 void HashTable::del(size_t ID, RBtree &rbtree) {
     size_t Index = generateHash(ID);
+
     if (hashVector.at(Index) != nullptr) {
         HashNode *currNode = hashVector.at(Index);
         HashNode *prevNode = nullptr;
@@ -102,6 +101,10 @@ void HashTable::del(size_t ID, RBtree &rbtree) {
             }
             prevNode = currNode;
             currNode = currNode->nextNode;
+        }
+
+        if (currNode == nullptr) {
+            throw runtime_error("Node to delete does not exist");
         }
 
         if (currNode->ID == ID) {

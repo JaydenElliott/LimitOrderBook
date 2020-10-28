@@ -28,19 +28,24 @@ float getRandInRange(float min_value, float max_value_inc) {
 */
 void executeorder(Node *buyorder, Node *sellorder, RBtree &buytree, RBtree &selltree, HashTable &htable) {
     if (buyorder == nullptr) {
-        order_execution_log(sellorder->price);
-        selltree.delete_price(sellorder);
-        htable.del(sellorder->ID);
+        htable.del(sellorder->ID, selltree);
     } else if (sellorder == nullptr) {
-        order_execution_log(buyorder->price);
-        buytree.delete_price(buyorder);
-        htable.del(buyorder->ID);
+        // order_execution_log(buyorder->price);
+
+        //
+
+        //
+        cout << "buytree max ID = " << buytree.buyMax->ID << endl;
+        cout << " buyorder id =  " << buyorder->ID << endl;
+
+        // PROBLEM IS ABOVE, BUYORDER != BUYMAX ORDER
+        cout << " buyorder price = " << buyorder->price << endl;
+        cout << endl;
+
+        htable.del(buyorder->ID, buytree);
     } else {
-        order_execution_log(buyorder->price);
-        buytree.delete_price(buyorder);
-        selltree.delete_price(sellorder);
-        htable.del(sellorder->ID);
-        htable.del(buyorder->ID);
+        htable.del(sellorder->ID, selltree);
+        htable.del(buyorder->ID, buytree);
     }
 }
 
@@ -50,7 +55,7 @@ void executeorder(Node *buyorder, Node *sellorder, RBtree &buytree, RBtree &sell
 * @param price: order price
 * @param ID: order ID
 */
-void newOrder(string ordertype, float price = 0, size_t ID, RBtree &buytree, RBtree &selltree, HashTable &htable) {
+void newOrder(string ordertype, float price, size_t ID, RBtree &buytree, RBtree &selltree, HashTable &htable) {
     if (ordertype == "buy") {
         if (selltree.root != selltree.NIL && price >= selltree.sellMin->price) {
             //Buy price >= max sell price ----- Order can be executed immediately
@@ -62,7 +67,9 @@ void newOrder(string ordertype, float price = 0, size_t ID, RBtree &buytree, RBt
     } else if (ordertype == "sell") {
         if (buytree.root != buytree.NIL && price <= buytree.buyMax->price) {
             //Sell price <= max sell price ----- Order can be executed immediately
+            cout << " BUYMAX ID = " << buytree.buyMax->ID << endl;
             executeorder(buytree.buyMax, nullptr, buytree, selltree, htable);
+            cout << "CHECK CHECK 123" << endl;
         } else {
             Node *sellnode = new Node(price, ID);
             htable.insert(price, ID, sellnode, selltree);
@@ -83,11 +90,35 @@ int main(int argc, char *argv[]) {
     HashTable table = HashTable(4);
     vector<float> orderlog;
 
-    for (int i = 0; i <= 100; i++) {
+    for (int i = 1; i <= 100; i++) {
         newOrder("buy", i, i + 10, buyTree, sellTree, table);
     }
 
-    table.print();
+    cout << "start sell orders" << endl;
+    for (int i = 1; i <= 100; i++) {
+        cout << endl;
+        cout << "start sell of " << i << endl;
+        cout << "---------------------------------------" << endl;
+        newOrder("sell", i, 1000 + i, buyTree, sellTree, table);
+    }
+    // cout << "start orderlog" << endl;
+    // for (float i : orderlog) {
+    //     cout << i << endl;
+    // }
+
+    // newOrder("buy", 100, 1234, buyTree, sellTree, table);
+    // newOrder("sell", 50, 333, buyTree, sellTree, table);
+    // newOrder("sell", 50, 333, buyTree, sellTree, table);
+
+    // cout << endl;
+    // cout << endl;
+    // cout << endl;
+    // cout << "Begin print stuff" << endl;
+
+    // buyTree.preorderPrint(buyTree.root);
+    // sellTree.preorderPrint(sellTree.root);
+
+    // table.print();
 
     return 0;
 }
