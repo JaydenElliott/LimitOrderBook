@@ -4,6 +4,7 @@
 #include "datastructures/node.hpp"
 #include "datastructures/queue.hpp"
 #include "datastructures/rbtree.hpp"
+#include "logging/logbook.hpp"
 
 using namespace std;
 using namespace std::chrono;
@@ -11,69 +12,56 @@ using namespace std::chrono;
 random_device rd;
 mt19937 gen(rd());
 
-/*
-* ---------------- Description ----------------
-* Handles order logging. Will push order price,
-* and execution time to a file.
-* Also responsible for handling the executed price
-* vector
-*
-* ---------------- Parameters ----------------
-* price:    order price
-* orderlog: reference to the executed price vector
-* 
+/**
+ * ---------------- Description ----------------
+ * Handles order execution. Will be called by
+ * "newOrder()" when a sell order is matched to
+ *  a buy order
+ *
+ * ---------------- Parameters ----------------
+ * ordertype:  buy or sell
+ * price:      order price
+ * ID:         order ID
+ * buytree:    reference to the buytree
+ * selltree:   reference to the selltree
+ * htable:     reference to the hashtable
+ * orderlog:   reference to the file responsible for logging orders
 */
-void push_to_log(float price, vector<float> &log) {
-    log.push_back(price);
-}
-
-/*
-* ---------------- Description ----------------
-* Handles order execution. Will be called by
-* "newOrder()" when a sell order is matched to
-*  a buy order
-*
-* ---------------- Parameters ----------------
-* ordertype:  buy or sell
-* price:      order price
-* ID:         order ID
-* buytree:    reference to the buytree
-* selltree:   reference to the selltree
-* htable:     reference to the hashtable
-* orderlog:   reference to the file responsible for logging orders
-*/
-void executeorder(Node *buyorder, Node *sellorder, RBtree &buytree, RBtree &selltree, HashTable &htable, vector<float> &orderlog) {
-    if (buyorder == nullptr) {  // sell order
+void executeorder(string todelete, size_t buyorderID, size_t sellorderID, RBtree &buytree, RBtree &selltree, HashTable &htable, Orderlogbook &orderlog) {
+    if (todelete == "sell") {  // sell order
         // push_to_log(buyorder->price, orderlog);  // was causing errors
-        htable.del(sellorder->ID, selltree);
-    } else if (sellorder == nullptr) {
+        htable.del(sellorderID, selltree);
+    } else if (todelete == "buy") {
         // push_to_log(buyorder->price, orderlog);  // was causing errors
-        htable.del(buyorder->ID, buytree);
-    } else {
-        htable.del(sellorder->ID, selltree);
-        htable.del(buyorder->ID, buytree);
+        htable.del(buyorderID, buytree);
+    } else if (todelete == "both") {
+        htable.del(sellorderID, selltree);
+        htable.del(buyorderID, buytree);
     }
 }
 
-/*
-*  ---------------- Description ----------------
-* Processes the new orders and sends them to
+/**
+ * ---------------- Description ----------------
+ * Processes the new orders and sends them to
  the right functions / datastructures
-*
-* ---------------- Parameters ----------------
-* ordertype:  buy or sell
-* price:      order price
-* ID:         order ID
-* buytree:    reference to the buytree
-* selltree:   reference to the selltree
-* htable:     reference to the hashtable
-* orderlog:   reference to the file responsible for logging orders
+ *
+ * ---------------- Parameters ----------------
+ * ordertype:  buy, sell, delete_sell, delete_buy
+ * logtrades:  true/false (write to file)
+ * price:      order price
+ * ID:         order ID
+ * buytree:    reference to the buytree
+ * selltree:   reference to the selltree
+ * htable:     reference to the hashtable
+ * orderlog:   reference to the file responsible for logging orders
 */
-void newOrder(string ordertype, float price, size_t ID, RBtree &buytree, RBtree &selltree, HashTable &htable, vector<float> &orderlog) {
+void newOrder(string ordertype, bool logtrades, float price, size_t ID, RBtree &buytree, RBtree &selltree, HashTable &htable, Orderlogbook &orderlog) {
     if (ordertype == "buy") {
         if (selltree.root != selltree.NIL && price >= selltree.sellMin->price) {
             //Buy price >= max sell price ----- Order can be executed immediately
-            executeorder(nullptr, selltree.sellMin, buytree, selltree, htable, orderlog);
+            if (logtrades) {
+                executeorder("sell", ID, selltree.sellMin->ID, buytree, selltree, htable, orderlog);
+            }
         } else {
             Node *buynode = new Node(price, ID);
             htable.insert(price, ID, buynode, buytree);
@@ -81,7 +69,9 @@ void newOrder(string ordertype, float price, size_t ID, RBtree &buytree, RBtree 
     } else if (ordertype == "sell") {
         if (buytree.root != buytree.NIL && price <= buytree.buyMax->price) {
             //Sell price <= max sell price ----- Order can be executed immediately
-            executeorder(buytree.buyMax, nullptr, buytree, selltree, htable, orderlog);
+            if (logtrades) {
+                executeorder("buy", ID, buytree.buyMax->ID, buytree, selltree, htable, orderlog);
+            }
         } else {
             Node *sellnode = new Node(price, ID);
             htable.insert(price, ID, sellnode, selltree);
@@ -100,25 +90,25 @@ int main(int argc, char *argv[]) {
     RBtree sellTree = RBtree("sell");
     RBtree buyTree = RBtree("buy");
     HashTable table = HashTable(24);
-    vector<float> orderlog;
+    Orderlogbook orderlog = Orderlogbook();
 
     auto start = high_resolution_clock::now();
 
-    int buyorders = 10000000;
+    int buyorders = 100000;
     for (int i = 1; i <= buyorders; i++) {
-        newOrder("buy", i, i + 10, buyTree, sellTree, table, orderlog);
+        newOrder("buy", false, i, i + 10, buyTree, sellTree, table, orderlog);
     }
 
-    int sellorders = 10000000;
+    int sellorders = 100000;
     for (int i = 1; i <= sellorders; i++) {
-        newOrder("sell", i, 1000 + i, buyTree, sellTree, table, orderlog);
+        newOrder("sell", false, i, 1000 + i, buyTree, sellTree, table, orderlog);
     }
 
     auto end = high_resolution_clock::now();
 
-    auto duration = duration_cast<seconds>(end - start);
+    auto duration = duration_cast<milliseconds>(end - start);
 
-    cout << "Time taken for " << buyorders + sellorders << " orders = " << duration.count() << " seconds" << endl;
+    cout << "Time taken for " << buyorders + sellorders << " orders = " << duration.count() << " milliseconds" << endl;
 
     // cout << orderlog.size() << endl;
 

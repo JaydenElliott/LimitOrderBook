@@ -167,9 +167,11 @@ void RBtree::delete_price(Node *todelete) {
         x = todelete->right;
         rbTransplant(todelete, todelete->right);
     } else if (todelete->right == this->NIL) {
+        cout << 2 << endl;
         x = todelete->left;
         rbTransplant(todelete, todelete->left);
     } else {
+        cout << 3 << endl;
         y = findMin(todelete->right);
 
         ycolour = y->colour;
@@ -191,11 +193,12 @@ void RBtree::delete_price(Node *todelete) {
     }
 
     // Update max in buy-tree or min in sell-tree
-
-    // this isnt going to work as left and right will always be NIL nodes
     if (this->treetype == "buy" && (this->root->right != this->NIL || this->root->left != this->NIL)) {
+        cout << 10 << endl;
         this->buyMax = findmax();
+        cout << 10.1 << endl;
     } else if (this->treetype == "sell" && (this->root->right != this->NIL || this->root->left != this->NIL)) {
+        cout << 11 << endl;
         this->sellMin = findmin();
     }
 
@@ -260,7 +263,7 @@ void RBtree::delete_fixup(Node *n) {
     n->colour = BLACK;
 }
 
-// Delete node helper function
+// Delete helper function
 void RBtree::rbTransplant(Node *n, Node *v) {
     if (n->parent == this->NIL) {
         this->root = v;
@@ -339,7 +342,7 @@ Node *RBtree::findmax() {
         throw runtime_error("No elements in the tree");
     }
     Node *node = this->root;
-    while (node->right->price != 0 && node->right != nullptr) {
+    while (node->right != nullptr && node->right->price != 0) {
         node = node->right;
     }
     return node;
@@ -350,7 +353,7 @@ Node *RBtree::findmin() {
         throw runtime_error("No elements in the tree");
     }
     Node *node = this->root;
-    while (node->left->price != 0 && node->left != nullptr) {
+    while (node->left != nullptr && node->left->price != 0) {
         node = node->left;
     }
     return node;
