@@ -11,6 +11,10 @@ using namespace std::chrono;
 
 random_device rd;
 mt19937 gen(rd());
+int getRand() {
+    uniform_int_distribution<> distr(0, 255);
+    return distr(gen);
+}
 
 string generate_uuid() {
     stringstream uuid;
