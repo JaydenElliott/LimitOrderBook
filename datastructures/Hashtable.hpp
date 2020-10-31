@@ -56,7 +56,7 @@ class HashTable {
     void print();
     bool get(size_t ID, HashNode &node);
     void insert(int price, size_t ID, Node *rbnode, RBtree &tree);
-    size_t generateHash(size_t ID);
+    size_t generateHash(string uuid, int tablesize);
     // unsigned int generateHash(string uuid, int tablesize);
 };
 
@@ -64,23 +64,20 @@ class HashTable {
  * Modified implementation of the FNV-1a hash
  */
 
-// unsigned int HashTable::generateHash(string uuid, int tablesize) {
-//     // check that its even
-//     if (uuid.length() % 2 != 0) {
-//         uuid.append("a");
-//     }
-//     unsigned int hash = offsetbasis;
-//     for (int i = 0; i < uuid.length() - 2; i += 2) {
-//         unsigned int octet = (uuid[i] << 4) + uuid[i + 1];
-//         hash = (hash ^ octet);
-//         hash *= fnvprime;
-//     }
-//     return hash % tablesize;
-// }
-
-size_t HashTable::generateHash(size_t ID) {
-    return ID % this->tableSize;
+unsigned int HashTable::generateHash(string uuid, int tablesize) {
+    // check that its even
+    if (uuid.length() % 2 != 0) {
+        uuid.append("a");
+    }
+    unsigned int hash = offsetbasis;
+    for (int i = 0; i < uuid.length() - 2; i += 2) {
+        unsigned int octet = (uuid[i] << 4) + uuid[i + 1];
+        hash = (hash ^ octet);
+        hash *= fnvprime;
+    }
+    return hash % tablesize;
 }
+
 void HashTable::insert(int price, size_t ID, Node *rbnode, RBtree &tree) {
     unsigned int newIndex = generateHash(ID);
     tree.insert_price(rbnode);
