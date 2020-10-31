@@ -12,6 +12,22 @@ using namespace std::chrono;
 random_device rd;
 mt19937 gen(rd());
 
+string generate_uuid() {
+    stringstream uuid;
+    for (int i = 0; i < 10; i++) {
+        unsigned int rc = getRand();
+        stringstream hs;
+        hs << hex << rc;
+        string hex = hs.str();
+        if (hex.length() < 2) {
+            uuid << '0' + hex;
+        } else {
+            uuid << hex;
+        }
+    }
+    return uuid.str();
+}
+
 /**
  * ---------------- Description ----------------
  * Handles order execution. Will be called by

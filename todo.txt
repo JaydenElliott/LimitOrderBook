@@ -1,4 +1,3 @@
-- update processing functions to include these
 - do i need any other cases for executing orders
 - check log book
 - resize hashtable

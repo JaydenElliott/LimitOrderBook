@@ -5,6 +5,9 @@
 
 using namespace std;
 
+// for first hash funciton
+const size_t knuth = 2654435769;  // (1/golden ratio)*(2^32)
+
 // For second hash function
 #define offsetbasis 2166136261
 #define fnvprime 16777619
@@ -12,14 +15,14 @@ using namespace std;
 class HashNode {
    public:
     HashNode(){};
-    HashNode(float price, string ID, Node *rbNode = nullptr) {
+    HashNode(float price, size_t ID, Node *rbNode = nullptr) {
         this->price = price;
         this->ID = ID;
         this->rbNode = rbNode;
     }
 
     float price;
-    string ID;
+    size_t ID;
     HashNode *nextNode = nullptr;
     Node *rbNode = nullptr;
 };
@@ -52,13 +55,17 @@ class HashTable {
     int sizeExponent;
     int tableSize;
     vector<HashNode *> hashVector;
-    void del(string ID, RBtree &rbtree);
+    void del(size_t ID, RBtree &rbtree);
     void print();
-    bool get(string ID, HashNode &node);
-    void insert(int price, string ID, Node *rbnode, RBtree &tree);
-    size_t generateHash(string ID);
+    bool get(size_t ID, HashNode &node);
+    void insert(int price, size_t ID, Node *rbnode, RBtree &tree);
+    size_t generateHash(size_t ID);
     unsigned int generateHash(string uuid, int tablesize);
 };
+
+size_t HashTable::generateHash(size_t ID) {
+    return ((ID * knuth) >> (32 - this->sizeExponent)) % tableSize;  // TODO replace with simply mod
+}
 
 /**
  * Modified implementation of the FNV-1a hash
@@ -78,8 +85,8 @@ unsigned int HashTable::generateHash(string uuid, int tablesize) {
     return hash % tablesize;
 }
 
-void HashTable::insert(int price, string ID, Node *rbnode, RBtree &tree) {
-    unsigned int newIndex = generateHash(ID);
+void HashTable::insert(int price, size_t ID, Node *rbnode, RBtree &tree) {
+    size_t newIndex = generateHash(ID);
     tree.insert_price(rbnode);
     if (hashVector.at(newIndex) == nullptr) {
         hashVector.at(newIndex) = new HashNode(price, ID, rbnode);
@@ -92,8 +99,8 @@ void HashTable::insert(int price, string ID, Node *rbnode, RBtree &tree) {
     }
 }
 
-bool HashTable::get(string ID, HashNode &node) {
-    unsigned int newIndex = generateHash(ID);
+bool HashTable::get(size_t ID, HashNode &node) {
+    size_t newIndex = generateHash(ID);
     HashNode *initElem = hashVector.at(newIndex);
     while (initElem != nullptr) {
         if (initElem->ID == ID) {
@@ -105,7 +112,7 @@ bool HashTable::get(string ID, HashNode &node) {
     return false;
 }
 
-void HashTable::del(string ID, RBtree &rbtree) {
+void HashTable::del(size_t ID, RBtree &rbtree) {
     size_t Index = generateHash(ID);
 
     if (hashVector.at(Index) != nullptr) {
