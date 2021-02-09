@@ -3,6 +3,9 @@
 
 using namespace std;
 
+/**
+ * Class for the buy and sell red black trees
+ */
 class RBtree {
    public:
     Node *buyMax = nullptr;
@@ -12,14 +15,12 @@ class RBtree {
     RBtree(string treetype) {
         this->treetype = treetype;
     }
-    ~RBtree() {
-        // TODO create deconstructor
-    }
     string treetype;
 
+    // RBTREE methods
     void insert_price(Node *currnode);
     void insert_fixup(Node *currnode);
-    Node *search_tree(float tofind, size_t ID);
+    Node *search_tree(float tofind, string ID);
     void delete_price(Node *todelete);
     void delete_fixup(Node *n);
     void rbTransplant(Node *n, Node *v);
@@ -77,7 +78,6 @@ void RBtree::insert_price(Node *currnode) {
             this->buyMax = currnode;
         }
     } else {
-        // y->price = currnode->price;
         y->queue.push(currnode->ID);
         delete currnode;
         currnode = nullptr;
@@ -140,8 +140,12 @@ void RBtree::insert_fixup(Node *currnode) {
     root->colour = BLACK;
 }
 
-// Search tree and find ID associated with price `tofind'
-Node *RBtree::search_tree(float tofind, size_t ID) {
+/**
+ * Search tree and find ID associated with price `tofind'
+ * Returns the node that was being looked for
+ */
+
+Node *RBtree::search_tree(float tofind, string ID) {
     Node *n = new Node();
     n = root;
     while (n == this->NIL || n->price != tofind) {
@@ -167,11 +171,9 @@ void RBtree::delete_price(Node *todelete) {
         x = todelete->right;
         rbTransplant(todelete, todelete->right);
     } else if (todelete->right == this->NIL) {
-        cout << 2 << endl;
         x = todelete->left;
         rbTransplant(todelete, todelete->left);
     } else {
-        cout << 3 << endl;
         y = findMin(todelete->right);
 
         ycolour = y->colour;
@@ -194,14 +196,10 @@ void RBtree::delete_price(Node *todelete) {
 
     // Update max in buy-tree or min in sell-tree
     if (this->treetype == "buy" && (this->root->right != this->NIL || this->root->left != this->NIL)) {
-        cout << 10 << endl;
         this->buyMax = findmax();
-        cout << 10.1 << endl;
     } else if (this->treetype == "sell" && (this->root->right != this->NIL || this->root->left != this->NIL)) {
-        cout << 11 << endl;
         this->sellMin = findmin();
     }
-
     delete todelete;
     todelete = nullptr;
 }
@@ -320,9 +318,11 @@ Node *RBtree::findMin(Node *n) {
     return n;
 }
 
-/*
-* Helper function for printing tree
-* @param node: node to begin printing from
+/**
+ * 
+ * Helper function for printing tree
+ * node argument for location to start
+ * printing from
 */
 void RBtree::preorderPrint(Node *node, bool withColour) {
     if (node == nullptr)
@@ -337,6 +337,9 @@ void RBtree::preorderPrint(Node *node, bool withColour) {
     preorderPrint(node->right);
 }
 
+/** Find maximum node function
+ * Returns the max node
+ */
 Node *RBtree::findmax() {
     if (this->root == nullptr) {
         throw runtime_error("No elements in the tree");
@@ -347,7 +350,9 @@ Node *RBtree::findmax() {
     }
     return node;
 }
-
+/** Find minimum node function
+ * Returns the min node
+ */
 Node *RBtree::findmin() {
     if (this->root == nullptr) {
         throw runtime_error("No elements in the tree");

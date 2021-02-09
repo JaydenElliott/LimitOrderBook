@@ -15,12 +15,12 @@ using namespace std;
 */
 RBtree buytree = RBtree("buy");
 HashTable testTableRB = HashTable(5);
-Node* ins1 = new Node(12, 111);
-Node* ins2 = new Node(15, 114);
-Node* ins3 = new Node(18, 131);
-Node* ins4 = new Node(20, 971);
-Node* ins5 = new Node(11, 371);
-Node* ins6 = new Node(10, 161);
+Node* ins1 = new Node(12, "test1");
+Node* ins2 = new Node(15, "test2");
+Node* ins3 = new Node(18, "test3");
+Node* ins4 = new Node(20, "test4");
+Node* ins5 = new Node(11, "test5");
+Node* ins6 = new Node(10, "test6");
 
 TEST_CASE("1.1: Insert Elements", "[multi-file:1]") {
     REQUIRE_NOTHROW(buytree.insert_price(ins1));
@@ -29,7 +29,9 @@ TEST_CASE("1.1: Insert Elements", "[multi-file:1]") {
     REQUIRE_NOTHROW(buytree.insert_price(ins4));
     REQUIRE_NOTHROW(buytree.insert_price(ins5));
     REQUIRE_NOTHROW(buytree.insert_price(ins6));
+    buytree.preorderPrint(buytree.root);
 }
+
 TEST_CASE("1.2: Fix-up", "[multi-file:1]") {
     REQUIRE(buytree.root->price == 15);
     REQUIRE(buytree.root->right->price == 18);
@@ -43,11 +45,11 @@ TEST_CASE("1.3: Delete Elements", "[multi-file:1]") {
     REQUIRE_NOTHROW(buytree.delete_price(ins1));
     REQUIRE_NOTHROW(buytree.delete_price(ins2));
     REQUIRE_NOTHROW(buytree.delete_price(ins3));
-    REQUIRE_THROWS(buytree.search_tree(12, 111));
+    REQUIRE_THROWS(buytree.search_tree(12, "test1"));
 }
 
 TEST_CASE("1.4: Search Tree", "[multi-file:1]") {
-    REQUIRE_NOTHROW(buytree.search_tree(10, 161));
+    REQUIRE_NOTHROW(buytree.search_tree(10, "test6"));
 }
 
 TEST_CASE("1.5: Print Tree", "[multi-file:1]") {

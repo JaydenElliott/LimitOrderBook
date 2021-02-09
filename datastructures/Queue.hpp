@@ -3,26 +3,29 @@
 
 using namespace std;
 
+/**
+ * Queue class for the red-black tree nodes
+ */
 class Queue {
    public:
     Queue() {}
     ~Queue() {}
 
-    int pop() {
+    string pop() {
         if (ID_Queue.size() == 0) {
             throw out_of_range("No more IDs, delete Node!");
         }
-        int last{ID_Queue.back()};
+        string last{ID_Queue.back()};
         ID_Queue.pop_back();
         return last;
     }
 
-    void push(size_t ID) {
+    void push(string ID) {
         ID_Queue.insert(ID_Queue.begin(), ID);
         // cout << "appending " << ID << endl;
     }
 
-    void find_and_remove(size_t ID) {
+    void find_and_remove(string ID) {
         int i = 0;
         while (1) {
             if (ID_Queue.at(i) == ID) {
@@ -34,7 +37,7 @@ class Queue {
     }
 
     void print() {
-        for (int i : ID_Queue) {
+        for (string i : ID_Queue) {
             cout << i << ", ";
         }
         cout << endl;
@@ -45,5 +48,5 @@ class Queue {
     }
 
    private:
-    vector<int> ID_Queue;
+    vector<string> ID_Queue;
 };

@@ -10,15 +10,15 @@ using namespace std;
 */
 Queue testQueue;
 TEST_CASE("1.1: Add ID", "[multi-file:1]") {
-    testQueue.push(11111);
-    testQueue.push(11111);
-    testQueue.push(11141);
-    testQueue.push(15111);
+    testQueue.push("test111");
+    testQueue.push("test112");
+    testQueue.push("test113");
+    testQueue.push("test114");
     REQUIRE(testQueue.size() == 4);
 }
 
 TEST_CASE("1.2: Remove ID", "[multi-file:1]") {
     testQueue.pop();
-    testQueue.find_and_remove(11141);
+    testQueue.find_and_remove("test112");
     REQUIRE(testQueue.size() == 2);
 }

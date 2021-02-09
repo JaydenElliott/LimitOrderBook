@@ -4,11 +4,17 @@
 
 using namespace std;
 
-// TODO: Currently every node gets an ID push, need to fix this
-// so that only new nodes get id pushes.
+/**
+ * Node class for the red-black trees
+ */
 class Node {
    public:
-    Node(float price = 0, size_t ID = 0) {
+    Node() {
+        this->price = 0;
+        this->ID = "NIL";
+        this->colour = BLACK;
+    }
+    Node(float price, string ID) {
         this->colour = BLACK;
         this->price = price;
         this->ID = ID;
@@ -19,10 +25,11 @@ class Node {
             nullNode = false;
         }
     }
+
     ~Node(){};
     bool colour;
     Queue queue;
-    size_t ID;
+    string ID;
     double price;
     Node *parent = nullptr;
     Node *left = nullptr;

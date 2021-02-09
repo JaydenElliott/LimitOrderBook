@@ -1,9 +1,12 @@
+
+
 #include "../imports/importsGlobal.hpp"
 #include "node.hpp"
 #include "rbtree.hpp"
 #pragma once
 
 using namespace std;
+using namespace std::chrono;
 
 // For second hash function
 #define offsetbasis 2166136261
@@ -12,14 +15,14 @@ using namespace std;
 class HashNode {
    public:
     HashNode(){};
-    HashNode(float price, size_t ID, Node *rbNode = nullptr) {
+    HashNode(float price, string ID, Node *rbNode) {
         this->price = price;
         this->ID = ID;
         this->rbNode = rbNode;
     }
 
     float price;
-    size_t ID;
+    string ID;
     HashNode *nextNode = nullptr;
     Node *rbNode = nullptr;
 };
@@ -52,38 +55,35 @@ class HashTable {
     int sizeExponent;
     int tableSize;
     vector<HashNode *> hashVector;
-    void del(size_t ID, RBtree &rbtree);
+    void del(string ID, RBtree &rbtree);
     void print();
-    bool get(size_t ID, HashNode &node);
-    void insert(int price, size_t ID, Node *rbnode, RBtree &tree);
-    size_t generateHash(size_t ID);
-    // unsigned int generateHash(string uuid, int tablesize);
+    bool get(string ID, HashNode &node);
+    void insert(int price, string ID, Node *rbnode, RBtree &tree);
+    unsigned int generateHash(string uuid);
 };
 
 /**
  * Modified implementation of the FNV-1a hash
  */
-
-// unsigned int HashTable::generateHash(string uuid, int tablesize) {
-//     // check that its even
-//     if (uuid.length() % 2 != 0) {
-//         uuid.append("a");
-//     }
-//     unsigned int hash = offsetbasis;
-//     for (int i = 0; i < uuid.length() - 2; i += 2) {
-//         unsigned int octet = (uuid[i] << 4) + uuid[i + 1];
-//         hash = (hash ^ octet);
-//         hash *= fnvprime;
-//     }
-//     return hash % tablesize;
-// }
-
-size_t HashTable::generateHash(size_t ID) {
-    return ID % this->tableSize;
+unsigned int HashTable::generateHash(string uuid) {
+    // check that its even
+    if (uuid.length() % 2 != 0) {
+        uuid.append("a");
+    }
+    unsigned int hash = offsetbasis;
+    for (int i = 0; i < uuid.length() - 2; i += 2) {
+        unsigned int octet = (uuid[i] << 4) + uuid[i + 1];
+        hash = (hash ^ octet);
+        hash *= fnvprime;
+    }
+    return hash % this->tableSize;
 }
-void HashTable::insert(int price, size_t ID, Node *rbnode, RBtree &tree) {
+void HashTable::insert(int price, string ID, Node *rbnode, RBtree &tree) {
     unsigned int newIndex = generateHash(ID);
-    tree.insert_price(rbnode);
+    if (newIndex > this->tableSize) {
+        throw runtime_error("TOO LARGE HASH");
+    }
+    tree.insert_price(rbnode);  // COMMENT OUT when conducting hash table timing tests
     if (hashVector.at(newIndex) == nullptr) {
         hashVector.at(newIndex) = new HashNode(price, ID, rbnode);
     } else {
@@ -91,11 +91,24 @@ void HashTable::insert(int price, size_t ID, Node *rbnode, RBtree &tree) {
         while (currNode->nextNode != nullptr) {
             currNode = currNode->nextNode;
         }
-        currNode->nextNode = new HashNode(price, ID, rbnode);
+        if (currNode != nullptr && currNode->ID == ID) {
+            currNode->price = price;
+
+            return;
+        }
+        if (currNode == nullptr) {
+            hashVector.at(newIndex) = new HashNode(price, ID, rbnode);
+        } else {
+            currNode->nextNode = new HashNode(price, ID, rbnode);
+        }
     }
 }
 
-bool HashTable::get(size_t ID, HashNode &node) {
+/**
+ * In place 'get' node from hashtable function
+ * Returns true if node was found
+ */
+bool HashTable::get(string ID, HashNode &node) {
     unsigned int newIndex = generateHash(ID);
     HashNode *initElem = hashVector.at(newIndex);
     while (initElem != nullptr) {
@@ -108,17 +121,17 @@ bool HashTable::get(size_t ID, HashNode &node) {
     return false;
 }
 
-void HashTable::del(size_t ID, RBtree &rbtree) {
-    size_t Index = generateHash(ID);
-
+/**
+ * In-place delete. 
+ * Throws error if node does not exist
+ */
+void HashTable::del(string ID, RBtree &rbtree) {
+    unsigned int Index = generateHash(ID);
     if (hashVector.at(Index) != nullptr) {
         HashNode *currNode = hashVector.at(Index);
         HashNode *prevNode = nullptr;
 
-        while (currNode != nullptr) {
-            if (currNode->ID == ID) {
-                break;
-            }
+        while (currNode != nullptr && currNode->ID != ID) {
             prevNode = currNode;
             currNode = currNode->nextNode;
         }
@@ -126,10 +139,9 @@ void HashTable::del(size_t ID, RBtree &rbtree) {
         if (currNode == nullptr) {
             throw runtime_error("Node to delete does not exist");
         }
-
         if (currNode->ID == ID) {
             HashNode *nextnode = currNode->nextNode;
-            rbtree.delete_price(currNode->rbNode);
+            rbtree.delete_price(currNode->rbNode);  // COMMENT OUT when conducting hash table timing tests
             delete currNode;
             if (prevNode == nullptr) {
                 hashVector.at(Index) = nextnode;
@@ -139,6 +151,7 @@ void HashTable::del(size_t ID, RBtree &rbtree) {
         }
     }
 }
+
 // Prints ID's in hashtable
 void HashTable::print() {
     for (int i = 0; i < hashVector.size(); i++) {
@@ -156,4 +169,34 @@ void HashTable::print() {
     }
 }
 
-// uuid fixed length
+// Random number generator
+random_device rd2;
+mt19937 gen2(rd2());
+
+int getRand() {
+    uniform_int_distribution<> distr(0, 255);
+    return distr(gen2);
+}
+/**
+ * Generates an adapted shortnered universally
+ * unique identifier (uuid)
+ */
+string generate_uuid() {
+    stringstream uuid;
+    auto start = high_resolution_clock::now();  // find the date
+    uint64_t microsec = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
+    for (int i = 0; i < 10; i++) {
+        unsigned int rc = getRand();
+        stringstream hs;
+        hs << hex << rc;
+        string hex = hs.str();
+        if (hex.length() < 2) {
+            uuid << '0' + hex;
+        } else {
+            uuid << hex;
+        }
+    }
+
+    uuid << microsec;
+    return uuid.str();
+}
