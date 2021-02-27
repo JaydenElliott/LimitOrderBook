@@ -143,7 +143,7 @@ int main(int argc, char *argv[]) {
             int n;  // number of orders
             inFile >> n;
 
-            vector<tuple<string, float, string>> insertOrders(n);
+            vector<tuple<string, float, string> > insertOrders(n);
 
             // Read orders and generate an order ID for each
             string insertOrderType;  // buy, sell, delete-buy, delete-sell
@@ -152,8 +152,7 @@ int main(int argc, char *argv[]) {
                 inFile >> insertOrderType >> price;
                 string ID = generate_uuid();
                 insertOrders.at(i) = tuple<string, float, string>(insertOrderType, price, ID);
-            }
-
+            }         
             // ------- PROCESS ORDERS ------- //
             for (int i = 0; i < n; i++) {
                 // Generate orders
@@ -166,7 +165,6 @@ int main(int argc, char *argv[]) {
                          table,
                          orderlog);
             }
-
             // getStatistics("all", stats, orderlog);  // Uncomment this line to see statistics
         }
     }
